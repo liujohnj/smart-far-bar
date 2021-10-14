@@ -7,7 +7,7 @@ const axios = require('axios');
 
 const TestWorkflow = () => {
 
-/*
+/* Token generation
 {
   "https://daml.com/ledger-api": {
      "ledgerId": "daml-smart-far-bar",
@@ -16,6 +16,7 @@ const TestWorkflow = () => {
    }
 }
 */
+
     const tokenBob = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2RhbWwuY29tL2xlZGdlci1hcGkiOnsibGVkZ2VySWQiOiJkYW1sLXNtYXJ0LWZhci1iYXIiLCJhcHBsaWNhdGlvbklkIjoic21hcnQtZmFyLWJhciIsImFjdEFzIjpbIkJvYiJdfX0.RrDfEGvJmcdjHGGr3zpqK27kdaO8FKQwu9R_U64WzOw";
 
     const tokenAlice = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2RhbWwuY29tL2xlZGdlci1hcGkiOnsibGVkZ2VySWQiOiJkYW1sLXNtYXJ0LWZhci1iYXIiLCJhcHBsaWNhdGlvbklkIjoic21hcnQtZmFyLWJhciIsImFjdEFzIjpbIkFsaWNlIl19fQ.o7iojVClVjdm9sDpVQzTCPaMlMJ-m3GC-ZQ7MVsMkxU";
@@ -130,7 +131,6 @@ const TestWorkflow = () => {
         } catch (err) {
             console.log(err);
         }
-        
     }
 
 
