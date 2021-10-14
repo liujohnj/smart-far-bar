@@ -13,4 +13,4 @@ dependencies:
 sandbox-options:
   - --wall-clock-time
   - --ledgerid=daml-smart-far-bar
-start-navigator: false
+start-navigator: true
