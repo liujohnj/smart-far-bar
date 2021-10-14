@@ -1,0 +1,16 @@
+sdk-version: 1.16.0
+name: smart-far-bar
+source: daml
+init-script: Main:setup
+parties:
+  - Alice
+  - Bob
+version: 0.0.1
+dependencies:
+  - daml-prim
+  - daml-stdlib
+  - daml-script
+sandbox-options:
+  - --wall-clock-time
+  - --ledgerid=daml-smart-far-bar
+start-navigator: false

@@ -1,0 +1,181 @@
+module Main where
+import Daml.Script
+import DA.Date
+
+type AsIsOfferId = ContractId AsIsOffer
+type AsIsCounterofferId = ContractId AsIsCounteroffer
+type AsIsContractId = ContractId AsIsContract
+
+data OtherTerms = OtherTerms
+    with
+        closingDate : Date
+        inspectionPeriod : Int
+    deriving (Eq, Show)
+
+-- #############################################################
+-- #                Initiate & Accept Model                    #
+-- #############################################################
+
+-- Buyer's Offer
+template AsIsOffer
+    with
+        -- Parties
+        sellerInOffer : Party
+        buyerInOffer : Party
+        
+        -- Property description
+        propertyInOffer : Text
+
+        -- Principal terms of offer
+        purchasePriceInOffer : Decimal
+
+        -- Other ancillary terms of offer (see above for contents)
+        otherTermsInOffer : OtherTerms
+
+        -- Checkboxes re: Seller's response to Buyer's offer
+        sellerRejectsOfferCheckbox : Bool
+        sellerCountersOfferCheckbox : Bool
+
+    where
+        signatory buyerInOffer
+
+        -- What Buyer can do
+        controller buyerInOffer can
+    
+            -- Create original Buyer's offer
+            MakeBuyersOffer : AsIsOfferId
+                do
+                    create this with
+                        sellerRejectsOfferCheckbox = False
+                        sellerCountersOfferCheckbox = False
+    
+            -- Revise Buyer's existing offer
+            ReviseBuyersOffer : AsIsOfferId
+                with
+                    revisedPurchasePrice : Decimal
+                do
+                    create this with
+                        purchasePriceInOffer = revisedPurchasePrice
+        
+        -- What Seller can do
+        controller sellerInOffer can
+
+            -- Reject Buyer's offer
+            RejectBuyersOffer : AsIsOfferId
+                do
+                    create this with
+                        sellerRejectsOfferCheckbox = True
+
+            -- Create counteroffer to Buyer's offer
+            CounterBuyersOffer : AsIsCounterofferId
+                with
+                    sellersCounterPurchasePrice : Decimal
+                do
+                    create AsIsCounteroffer with
+                        sellerInCounteroffer = sellerInOffer
+                        buyerInCounteroffer = buyerInOffer
+                        propertyInCounteroffer = propertyInOffer
+                        sellerRejectsOfferCheckbox = False
+                        sellerCountersOfferCheckbox = True
+                        purchasePriceInCounteroffer = sellersCounterPurchasePrice
+                        otherTermsInCounteroffer = otherTermsInOffer
+            
+            -- Accept Buyer's offer
+            AcceptBuyersOffer : AsIsContractId
+                do
+                    create AsIsContract with
+                        sellerInContract = sellerInOffer
+                        buyerInContract = buyerInOffer
+                        propertyInContract = propertyInOffer
+                        purchasePriceInContract = purchasePriceInOffer
+
+
+-- Seller's Counteroffer
+template AsIsCounteroffer
+    with
+        sellerInCounteroffer : Party
+        buyerInCounteroffer : Party
+        propertyInCounteroffer : Text
+        purchasePriceInCounteroffer : Decimal
+        otherTermsInCounteroffer : OtherTerms
+        sellerRejectsOfferCheckbox : Bool
+        sellerCountersOfferCheckbox : Bool
+    where
+        signatory sellerInCounteroffer
+
+        -- what Buyer can do
+        controller buyerInCounteroffer can
+
+            -- Accept Seller's counteroffer
+            AcceptSellersCounteroffer : AsIsContractId
+                do
+                    create AsIsContract with
+                        sellerInContract = sellerInCounteroffer
+                        buyerInContract = buyerInCounteroffer
+                        propertyInContract = propertyInCounteroffer
+                        purchasePriceInContract = purchasePriceInCounteroffer
+
+            -- Counter Seller's counteroffer (by creating new offer)
+            CounterSellersCounteroffer : AsIsOfferId
+                with
+                     buyersCounterPurchasePrice : Decimal
+                     --buyersCounterOtherTerms : OtherTerms
+                do
+                    create AsIsOffer with
+                        sellerInOffer = sellerInCounteroffer
+                        buyerInOffer = buyerInCounteroffer
+                        propertyInOffer = propertyInCounteroffer
+                        purchasePriceInOffer = buyersCounterPurchasePrice
+                        otherTermsInOffer = otherTermsInCounteroffer
+                        sellerRejectsOfferCheckbox = False
+                        sellerCountersOfferCheckbox = False
+
+            -- Reject Buyer's offer
+            RejectSellersCounteroffer : AsIsCounterofferId
+                do
+                    create this
+
+-- Effective Contract
+template AsIsContract
+    with
+        sellerInContract : Party
+        buyerInContract : Party
+        propertyInContract : Text
+        purchasePriceInContract : Decimal
+    where
+        signatory sellerInContract, buyerInContract
+
+-- ******* OFFER - COUNTER - COUNTER COUNTER - REJECT ********
+setup : Script AsIsOfferId
+setup = script do
+    -- Assign seller and buyer parties
+    alice_seller <- allocateParty "Alice"
+    bob_buyer <- allocateParty "Bob"
+
+    -- Buyer makes offer of $100,000
+    bobOffer1 <- submit bob_buyer do
+
+        createCmd AsIsOffer with
+            buyerInOffer = bob_buyer
+            sellerInOffer = alice_seller
+            propertyInOffer = "123 Main St"
+            purchasePriceInOffer = 100000.00
+            otherTermsInOffer = OtherTerms with
+                closingDate = date 2021 Oct 31
+                inspectionPeriod = 10
+            sellerRejectsOfferCheckbox = False
+            sellerCountersOfferCheckbox = False
+    
+    -- Seller counters offer
+    aliceCountersOffer <- submit alice_seller do
+        exerciseCmd bobOffer1 CounterBuyersOffer with
+            sellersCounterPurchasePrice = 120000.00
+
+    -- Buyer counters Alice's counter
+    bobCountersCounter <- submit bob_buyer do
+        exerciseCmd aliceCountersOffer CounterSellersCounteroffer with
+            buyersCounterPurchasePrice = 110000.00
+
+    -- Seller rejects buyer's counter-counteroffer
+    submit alice_seller do
+        exerciseCmd bobCountersCounter RejectBuyersOffer
