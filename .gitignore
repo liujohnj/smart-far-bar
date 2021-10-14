@@ -1,1 +1,3 @@
 /.daml
+.env
+ui/.env
