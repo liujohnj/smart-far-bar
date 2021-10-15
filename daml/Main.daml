@@ -20,11 +20,11 @@ data OtherTerms = OtherTerms
 template AsIsOffer
     with
         -- Parties
-        sellerInOffer : Party
+        seller : Party
         buyerInOffer : Party
         
         -- Property description
-        propertyInOffer : Text
+        property : Text
 
         -- Principal terms of offer
         purchasePriceInOffer : Decimal
@@ -58,7 +58,7 @@ template AsIsOffer
                         purchasePriceInOffer = revisedPurchasePrice
         
         -- What Seller can do
-        controller sellerInOffer can
+        controller seller can
 
             -- Reject Buyer's offer
             RejectBuyersOffer : AsIsOfferId
@@ -72,9 +72,9 @@ template AsIsOffer
                     sellersCounterPurchasePrice : Decimal
                 do
                     create AsIsCounteroffer with
-                        sellerInCounteroffer = sellerInOffer
+                        seller
                         buyerInCounteroffer = buyerInOffer
-                        propertyInCounteroffer = propertyInOffer
+                        property = property
                         sellerRejectsOfferCheckbox = False
                         sellerCountersOfferCheckbox = True
                         purchasePriceInCounteroffer = sellersCounterPurchasePrice
@@ -84,24 +84,25 @@ template AsIsOffer
             AcceptBuyersOffer : AsIsContractId
                 do
                     create AsIsContract with
-                        sellerInContract = sellerInOffer
-                        buyerInContract = buyerInOffer
-                        propertyInContract = propertyInOffer
-                        purchasePriceInContract = purchasePriceInOffer
+                        seller
+                        buyer = buyerInOffer
+                        property = property
+                        purchasePrice = purchasePriceInOffer
+                        otherTerms = otherTermsInOffer
 
 
 -- Seller's Counteroffer
 template AsIsCounteroffer
     with
-        sellerInCounteroffer : Party
+        seller : Party
         buyerInCounteroffer : Party
-        propertyInCounteroffer : Text
+        property : Text
         purchasePriceInCounteroffer : Decimal
         otherTermsInCounteroffer : OtherTerms
         sellerRejectsOfferCheckbox : Bool
         sellerCountersOfferCheckbox : Bool
     where
-        signatory sellerInCounteroffer
+        signatory seller
 
         -- what Buyer can do
         controller buyerInCounteroffer can
@@ -110,10 +111,11 @@ template AsIsCounteroffer
             AcceptSellersCounteroffer : AsIsContractId
                 do
                     create AsIsContract with
-                        sellerInContract = sellerInCounteroffer
-                        buyerInContract = buyerInCounteroffer
-                        propertyInContract = propertyInCounteroffer
-                        purchasePriceInContract = purchasePriceInCounteroffer
+                        seller
+                        buyer = buyerInCounteroffer
+                        property = property
+                        purchasePrice = purchasePriceInCounteroffer
+                        otherTerms = otherTermsInCounteroffer
 
             -- Counter Seller's counteroffer (by creating new offer)
             CounterSellersCounteroffer : AsIsOfferId
@@ -122,9 +124,9 @@ template AsIsCounteroffer
                      --buyersCounterOtherTerms : OtherTerms
                 do
                     create AsIsOffer with
-                        sellerInOffer = sellerInCounteroffer
+                        seller
                         buyerInOffer = buyerInCounteroffer
-                        propertyInOffer = propertyInCounteroffer
+                        property = property
                         purchasePriceInOffer = buyersCounterPurchasePrice
                         otherTermsInOffer = otherTermsInCounteroffer
                         sellerRejectsOfferCheckbox = False
@@ -138,12 +140,13 @@ template AsIsCounteroffer
 -- Effective Contract
 template AsIsContract
     with
-        sellerInContract : Party
-        buyerInContract : Party
-        propertyInContract : Text
-        purchasePriceInContract : Decimal
+        seller : Party
+        buyer : Party
+        property : Text
+        purchasePrice : Decimal
+        otherTerms : OtherTerms
     where
-        signatory sellerInContract, buyerInContract
+        signatory seller, buyer
 
 -- ******* OFFER - COUNTER - COUNTER COUNTER - REJECT ********
 setup : Script AsIsOfferId
@@ -157,8 +160,8 @@ setup = script do
 
         createCmd AsIsOffer with
             buyerInOffer = bob_buyer
-            sellerInOffer = alice_seller
-            propertyInOffer = "123 Main St"
+            seller = alice_seller
+            property = "123 Main St"
             purchasePriceInOffer = 100000.00
             otherTermsInOffer = OtherTerms with
                 closingDate = date 2021 Oct 31

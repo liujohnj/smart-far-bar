@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, setState, useEffect } from 'react';
+import { useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 const axios = require('axios');
@@ -43,11 +42,14 @@ const TestWorkflow = () => {
                 
             });
             console.log("LIST OF CONTRACTS: ", response.data.result)
-            if (response.data) {
+            const numContracts = response.data.result.length;
+            if (numContracts > 0) {
                 //const data = JSON.stringify(response.data.result)
+                console.log("Number of contracts = ", numContracts)
                 setContractsList(response.data.result);
                 setActiveContract(response.data.result[0].contractId)
             } else {
+                console.log("setting list to None");
                 setContractsList("None");
             }
             
@@ -72,9 +74,9 @@ const TestWorkflow = () => {
                     {
                         "templateId": "Main:AsIsOffer",
                         "payload": {
-                            "sellerInOffer": "Alice",
+                            "seller": "Alice",
                             "buyerInOffer": "Bob",
-                            "propertyInOffer": "123 Main St",
+                            "property": "123 Main St",
                             "purchasePriceInOffer": 15000.00,
                             "otherTermsInOffer":        
                                 {
@@ -112,9 +114,9 @@ const TestWorkflow = () => {
                     "choice": "CounterBuyersOffer",
                     "argument": {
                         "sellersCounterPurchasePrice": 18000.00,
-                        "sellerInCounteroffer": "Alice",
+                        "seller": "Alice",
                         "buyerInCounteroffer": "Bob",
-                        "propertyInCounteroffer": "123 Main St",
+                        "property": "123 Main St",
                         "sellerRejectsOfferCheckbox": false,
                         "sellerCountersOfferCheckbox": true,
                         "purchasePriceInCounteroffer": "sellersCounterPurchasePrice",
@@ -132,7 +134,6 @@ const TestWorkflow = () => {
             console.log(err);
         }
     }
-
 
     const bobAcceptsCounter = async (party) => {
         let token = tokenBob;
@@ -153,10 +154,11 @@ const TestWorkflow = () => {
                     "contractId": activeContract,
                     "choice": "AcceptSellersCounteroffer",
                     "argument": {
-                        "sellerInContract": "Alice",
-                        "buyerInContract": "Bob",
-                        "propertyInContract": "123 Main St",
-                        "purchasePriceInContract": 18000.00
+                        "seller": "Alice",
+                        "buyer": "Bob",
+                        "property": "123 Main St",
+                        "purchasePrice": 18000.00,
+                        "otherTerms": {"closingDate":"2021-10-31", "inspectionPeriod":10}
                     }
                 }
             });
@@ -211,9 +213,11 @@ const TestWorkflow = () => {
                     List of contracts:
                 </Typography>
                 
+                {(contractsList && contractsList === "None") && <p>None</p>}
+
                 {(contractsList && contractsList !== "None") && contractsList.map((contract, key) => {
                     return <p key={key}>{contract.contractId}</p>
-                })};
+                })}
                 
             </div>
         </div>

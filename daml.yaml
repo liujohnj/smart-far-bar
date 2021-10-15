@@ -5,6 +5,9 @@ init-script: Main:setup
 parties:
   - Alice
   - Bob
+  - Carol
+  - David
+  - Faythe
 version: 0.0.1
 dependencies:
   - daml-prim
