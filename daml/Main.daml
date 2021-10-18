@@ -1,10 +1,20 @@
 module Main where
 import Daml.Script
-import DA.Date
 
-type AsIsOfferId = ContractId AsIsOffer
-type AsIsCounterofferId = ContractId AsIsCounteroffer
-type AsIsContractId = ContractId AsIsContract
+data Parties = Parties
+    with
+        seller : Party
+        buyer : Party
+    deriving (Eq, Show)
+
+data Property = Property
+    with
+        streetAddress : Text
+        county : Text
+        taxId : Text
+        legalDescr : Text
+        personalProperty : Text
+        excludedItems : Text
 
 data OtherTerms = OtherTerms
     with
@@ -12,173 +22,248 @@ data OtherTerms = OtherTerms
         inspectionPeriod : Int
     deriving (Eq, Show)
 
--- #############################################################
--- #                Initiate & Accept Model                    #
--- #############################################################
 
--- Buyer's Offer
-template AsIsOffer
+template SellerAgencyProposal
     with
-        -- Parties
         seller : Party
-        buyerInOffer : Party
-        
-        -- Property description
-        property : Text
-
-        -- Principal terms of offer
-        purchasePriceInOffer : Decimal
-
-        -- Other ancillary terms of offer (see above for contents)
-        otherTermsInOffer : OtherTerms
-
-        -- Checkboxes re: Seller's response to Buyer's offer
-        sellerRejectsOfferCheckbox : Bool
-        sellerCountersOfferCheckbox : Bool
-
+        sellerAgent : Party
     where
-        signatory buyerInOffer
+        signatory sellerAgent
 
-        -- What Buyer can do
-        controller buyerInOffer can
-    
-            -- Create original Buyer's offer
-            MakeBuyersOffer : AsIsOfferId
-                do
-                    create this with
-                        sellerRejectsOfferCheckbox = False
-                        sellerCountersOfferCheckbox = False
-    
-            -- Revise Buyer's existing offer
-            ReviseBuyersOffer : AsIsOfferId
-                with
-                    revisedPurchasePrice : Decimal
-                do
-                    create this with
-                        purchasePriceInOffer = revisedPurchasePrice
-        
-        -- What Seller can do
         controller seller can
+                AcceptSellerAgency: ContractId SellerAgencyCreated
+                    do
+                        create SellerAgencyCreated with
+                            seller
+                            sellerAgent
 
-            -- Reject Buyer's offer
-            RejectBuyersOffer : AsIsOfferId
-                do
-                    create this with
-                        sellerRejectsOfferCheckbox = True
-
-            -- Create counteroffer to Buyer's offer
-            CounterBuyersOffer : AsIsCounterofferId
-                with
-                    sellersCounterPurchasePrice : Decimal
-                do
-                    create AsIsCounteroffer with
-                        seller
-                        buyerInCounteroffer = buyerInOffer
-                        property = property
-                        sellerRejectsOfferCheckbox = False
-                        sellerCountersOfferCheckbox = True
-                        purchasePriceInCounteroffer = sellersCounterPurchasePrice
-                        otherTermsInCounteroffer = otherTermsInOffer
-            
-            -- Accept Buyer's offer
-            AcceptBuyersOffer : AsIsContractId
-                do
-                    create AsIsContract with
-                        seller
-                        buyer = buyerInOffer
-                        property = property
-                        purchasePrice = purchasePriceInOffer
-                        otherTerms = otherTermsInOffer
-
-
--- Seller's Counteroffer
-template AsIsCounteroffer
+template SellerAgencyCreated
     with
         seller : Party
-        buyerInCounteroffer : Party
-        property : Text
-        purchasePriceInCounteroffer : Decimal
-        otherTermsInCounteroffer : OtherTerms
-        sellerRejectsOfferCheckbox : Bool
-        sellerCountersOfferCheckbox : Bool
+        sellerAgent : Party
     where
-        signatory seller
-
-        -- what Buyer can do
-        controller buyerInCounteroffer can
-
-            -- Accept Seller's counteroffer
-            AcceptSellersCounteroffer : AsIsContractId
-                do
-                    create AsIsContract with
-                        seller
-                        buyer = buyerInCounteroffer
-                        property = property
-                        purchasePrice = purchasePriceInCounteroffer
-                        otherTerms = otherTermsInCounteroffer
-
-            -- Counter Seller's counteroffer (by creating new offer)
-            CounterSellersCounteroffer : AsIsOfferId
+        signatory seller, sellerAgent
+    
+        controller sellerAgent can
+            nonconsuming PrepareListing: ContractId PreparedListing
                 with
-                     buyersCounterPurchasePrice : Decimal
-                     --buyersCounterOtherTerms : OtherTerms
+                    listPrice : Decimal
                 do
-                    create AsIsOffer with
+                    create PreparedListing with
                         seller
-                        buyerInOffer = buyerInCounteroffer
-                        property = property
-                        purchasePriceInOffer = buyersCounterPurchasePrice
-                        otherTermsInOffer = otherTermsInCounteroffer
-                        sellerRejectsOfferCheckbox = False
-                        sellerCountersOfferCheckbox = False
+                        listPrice
+                        sellerAgent
 
-            -- Reject Buyer's offer
-            RejectSellersCounteroffer : AsIsCounterofferId
+template PreparedListing
+    with
+        seller : Party
+        listPrice : Decimal
+        sellerAgent : Party
+    where
+        signatory sellerAgent
+    
+        controller seller can
+            ApproveListing: ContractId Listing
+                do
+                    create Listing with
+                        seller
+                        listPrice
+                        sellerAgent
+
+template Listing
+    with
+        seller : Party
+        listPrice : Decimal
+        sellerAgent : Party
+    where
+        signatory seller, sellerAgent
+
+
+template BuyerAgencyProposal
+    with
+        buyer : Party
+        buyerAgent : Party
+    where
+        signatory buyerAgent
+
+        controller buyer can
+            AcceptBuyerAgency: ContractId BuyerAgencyCreated
+                do
+                    create BuyerAgencyCreated with
+                        buyer
+                        buyerAgent
+
+template BuyerAgencyCreated
+    with
+        buyer : Party
+        buyerAgent : Party
+    where
+        signatory buyer, buyerAgent
+    
+        controller buyerAgent can
+            nonconsuming PrepareOffer: ContractId PreparedOffer
+                with
+                    parties : Parties
+                    amount : Decimal
+                    sellerAgent : Party
+                do
+                    create PreparedOffer with
+                        parties
+                        amount
+                        sellerAgent
+                        buyerAgent
+
+template PreparedOffer
+    with
+        parties : Parties
+        amount : Decimal
+        sellerAgent : Party
+        buyerAgent : Party
+    where
+        signatory buyerAgent
+
+        controller parties.buyer can
+            SignOffer: ContractId TenderedOffer
+                do
+                    create TenderedOffer with
+                        parties
+                        amount
+                        sellerAgent
+                        buyerAgent
+
+template TenderedOffer
+    with
+        parties : Parties
+        amount : Decimal
+        sellerAgent : Party
+        buyerAgent : Party
+    where
+        signatory parties.buyer
+        observer sellerAgent, buyerAgent
+
+        controller parties.seller can
+            AcceptOffer : ContractId ExecutedContract
+                do
+                    create ExecutedContract with
+                        parties
+                        amount
+                        sellerAgent
+                        buyerAgent
+
+            IndicateCounteroffer : ContractId TenderedOffer
                 do
                     create this
 
--- Effective Contract
-template AsIsContract
+template ExecutedContract
     with
-        seller : Party
-        buyer : Party
-        property : Text
-        purchasePrice : Decimal
-        otherTerms : OtherTerms
+        parties : Parties
+        amount : Decimal
+        sellerAgent : Party
+        buyerAgent : Party
     where
-        signatory seller, buyer
+        signatory parties.seller, parties.buyer
+        observer sellerAgent, buyerAgent
 
--- ******* OFFER - COUNTER - COUNTER COUNTER - REJECT ********
-setup : Script AsIsOfferId
+template PreparedCounteroffer
+    with
+        parties : Parties
+        amount : Decimal
+        sellerAgent : Party
+        buyerAgent : Party
+    where
+        signatory sellerAgent
+
+        controller parties.seller can
+                SignCounteroffer : ContractId TenderedCounteroffer
+                    do
+                        create TenderedCounteroffer with
+                            parties
+                            amount
+                            sellerAgent
+                            buyerAgent
+
+template TenderedCounteroffer
+    with
+        parties : Parties
+        amount : Decimal
+        sellerAgent : Party
+        buyerAgent : Party
+    where
+        signatory parties.seller
+        observer buyerAgent
+
+        controller parties.buyer can
+                AcceptCounteroffer : ContractId ExecutedContract
+                    do
+                        create ExecutedContract with
+                            parties
+                            amount
+                            sellerAgent
+                            buyerAgent
+
+
 setup = script do
-    -- Assign seller and buyer parties
-    alice_seller <- allocateParty "Alice"
-    bob_buyer <- allocateParty "Bob"
+    alice <- allocateParty "Alice"  -- seller
+    bob <- allocateParty "Bob"      -- buyer
+    carol <- allocateParty "Carol"  -- buyerAgent
+    david <- allocateParty "David"  -- sellerAgent
 
-    -- Buyer makes offer of $100,000
-    bobOffer1 <- submit bob_buyer do
 
-        createCmd AsIsOffer with
-            buyerInOffer = bob_buyer
-            seller = alice_seller
-            property = "123 Main St"
-            purchasePriceInOffer = 100000.00
-            otherTermsInOffer = OtherTerms with
-                closingDate = date 2021 Oct 31
-                inspectionPeriod = 10
-            sellerRejectsOfferCheckbox = False
-            sellerCountersOfferCheckbox = False
+    offer03 <- submit david do
+        createCmd SellerAgencyProposal with
+            seller = alice
+            sellerAgent = david
     
-    -- Seller counters offer
-    aliceCountersOffer <- submit alice_seller do
-        exerciseCmd bobOffer1 CounterBuyersOffer with
-            sellersCounterPurchasePrice = 120000.00
+    offer04 <- submit alice do
+        exerciseCmd offer03 AcceptSellerAgency
 
-    -- Buyer counters Alice's counter
-    bobCountersCounter <- submit bob_buyer do
-        exerciseCmd aliceCountersOffer CounterSellersCounteroffer with
-            buyersCounterPurchasePrice = 110000.00
+    offer05 <- submit david do
+        exerciseCmd offer04 PrepareListing with
+            listPrice = 100000.00
 
-    -- Seller rejects buyer's counter-counteroffer
-    submit alice_seller do
-        exerciseCmd bobCountersCounter RejectBuyersOffer
+    offer06 <- submit alice do
+        exerciseCmd offer05 ApproveListing
+
+    offer07 <- submit carol do
+        createCmd BuyerAgencyProposal with
+            buyer = bob
+            buyerAgent = carol
+    
+    offer08 <- submit bob do
+        exerciseCmd offer07 AcceptBuyerAgency
+
+    offer10 <- submit carol do
+        let
+            parties = Parties with
+                seller = alice
+                buyer = bob
+        exerciseCmd offer08 PrepareOffer with
+            parties
+            sellerAgent = david
+            amount = 90000.00
+
+    offer20 <- submit bob do
+        exerciseCmd offer10 SignOffer
+
+    offer25 <- submit alice do
+        exerciseCmd offer20 IndicateCounteroffer
+    
+    offer26 <- submit bob do
+        archiveCmd offer25
+    
+    offer30 <- submit david do
+        let
+            parties = Parties with
+                seller = alice
+                buyer = bob
+        createCmd PreparedCounteroffer with
+            parties
+            amount = 95000.00
+            sellerAgent = david
+            buyerAgent = carol
+
+    offer40 <- submit alice do
+        exerciseCmd offer30 SignCounteroffer
+
+    submit bob do
+        exerciseCmd offer40 AcceptCounteroffer
