@@ -1,5 +1,6 @@
 module Main where
 import Daml.Script
+import DA.Date
 
 data Parties = Parties
     with
@@ -15,11 +16,24 @@ data Property = Property
         legalDescr : Text
         personalProperty : Text
         excludedItems : Text
+    deriving (Eq, Show)
 
-data OtherTerms = OtherTerms
+data EscrowAgent = EscrowAgent
     with
-        closingDate : Date
-        inspectionPeriod : Int
+        name : Text
+        address : Text
+        phone : Text
+        email : Text
+        fax : Text
+    deriving (Eq, Show)
+        
+data MainTerms = MainTerms
+    with
+        purchasePrice : Decimal
+        initialDeposit : Decimal
+        initialDepositTime : Int
+        balanceToClose : Decimal
+        timeForAcceptance : TA.Date
     deriving (Eq, Show)
 
 
