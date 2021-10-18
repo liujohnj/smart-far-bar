@@ -27,13 +27,22 @@ data EscrowAgent = EscrowAgent
         fax : Text
     deriving (Eq, Show)
         
-data MainTerms = MainTerms
+data Terms = Terms
     with
         purchasePrice : Decimal
         initialDeposit : Decimal
         initialDepositTime : Int
         balanceToClose : Decimal
-        timeForAcceptance : TA.Date
+        timeForAcceptance : Date
+        closingDate : Date
+        isAssignable : Text
+        titleEvidenceDeadline : Int
+        whoDesignatesClosingAgent : Text
+        inspectionPeriod : Int
+        offerIsCountered : Bool
+        offerIsRejected : Bool
+        counterOfferIsCountered : Bool
+        counterofferIsRejected : Bool
     deriving (Eq, Show)
 
 
@@ -41,6 +50,8 @@ template SellerAgencyProposal
     with
         seller : Party
         sellerAgent : Party
+        property : Property
+        listPrice : Decimal
     where
         signatory sellerAgent
 
@@ -50,43 +61,49 @@ template SellerAgencyProposal
                         create SellerAgencyCreated with
                             seller
                             sellerAgent
+                            property
+                            listPrice
 
 template SellerAgencyCreated
     with
         seller : Party
         sellerAgent : Party
+        property : Property
+        listPrice : Decimal
     where
         signatory seller, sellerAgent
     
         controller sellerAgent can
             nonconsuming PrepareListing: ContractId PreparedListing
-                with
-                    listPrice : Decimal
                 do
                     create PreparedListing with
                         seller
+                        property
                         listPrice
                         sellerAgent
 
 template PreparedListing
     with
         seller : Party
+        property : Property
         listPrice : Decimal
         sellerAgent : Party
     where
         signatory sellerAgent
     
         controller seller can
-            ApproveListing: ContractId Listing
+            ApproveListing: ContractId ApprovedListing
                 do
-                    create Listing with
+                    create ApprovedListing with
                         seller
+                        property
                         listPrice
                         sellerAgent
 
-template Listing
+template ApprovedListing
     with
         seller : Party
+        property : Property
         listPrice : Decimal
         sellerAgent : Party
     where
@@ -118,37 +135,47 @@ template BuyerAgencyCreated
             nonconsuming PrepareOffer: ContractId PreparedOffer
                 with
                     parties : Parties
-                    amount : Decimal
+                    property : Property
+                    escrowAgent : EscrowAgent
+                    terms : Terms
                     sellerAgent : Party
                 do
                     create PreparedOffer with
                         parties
-                        amount
+                        property
+                        escrowAgent
+                        terms
                         sellerAgent
                         buyerAgent
 
 template PreparedOffer
     with
         parties : Parties
-        amount : Decimal
+        property : Property
+        escrowAgent : EscrowAgent
+        terms : Terms
         sellerAgent : Party
         buyerAgent : Party
     where
         signatory buyerAgent
 
         controller parties.buyer can
-            SignOffer: ContractId TenderedOffer
+            ApproveOffer: ContractId TenderedOffer
                 do
                     create TenderedOffer with
                         parties
-                        amount
+                        property
+                        escrowAgent
+                        terms
                         sellerAgent
                         buyerAgent
 
 template TenderedOffer
     with
         parties : Parties
-        amount : Decimal
+        property : Property
+        escrowAgent : EscrowAgent
+        terms : Terms
         sellerAgent : Party
         buyerAgent : Party
     where
@@ -160,18 +187,28 @@ template TenderedOffer
                 do
                     create ExecutedContract with
                         parties
-                        amount
+                        property
+                        escrowAgent
+                        terms
                         sellerAgent
                         buyerAgent
 
+            RejectOffer : ContractId TenderedOffer
+                do
+                    create this with
+                        terms.offerIsRejected = True
+            
             IndicateCounteroffer : ContractId TenderedOffer
                 do
-                    create this
+                    create this with
+                        terms.offerIsCountered = True
 
 template ExecutedContract
     with
         parties : Parties
-        amount : Decimal
+        property : Property
+        escrowAgent : EscrowAgent
+        terms : Terms
         sellerAgent : Party
         buyerAgent : Party
     where
@@ -181,7 +218,9 @@ template ExecutedContract
 template PreparedCounteroffer
     with
         parties : Parties
-        amount : Decimal
+        property : Property
+        escrowAgent : EscrowAgent
+        terms : Terms
         sellerAgent : Party
         buyerAgent : Party
     where
@@ -192,14 +231,18 @@ template PreparedCounteroffer
                     do
                         create TenderedCounteroffer with
                             parties
-                            amount
+                            property
+                            escrowAgent
+                            terms
                             sellerAgent
                             buyerAgent
 
 template TenderedCounteroffer
     with
         parties : Parties
-        amount : Decimal
+        property : Property
+        escrowAgent : EscrowAgent
+        terms : Terms
         sellerAgent : Party
         buyerAgent : Party
     where
@@ -211,9 +254,16 @@ template TenderedCounteroffer
                     do
                         create ExecutedContract with
                             parties
-                            amount
+                            property
+                            escrowAgent
+                            terms
                             sellerAgent
                             buyerAgent
+
+                RejectCounteroffer : ContractId TenderedCounteroffer
+                    do
+                        create this with
+                            terms.counterofferIsRejected = True
 
 
 setup = script do
@@ -222,18 +272,35 @@ setup = script do
     carol <- allocateParty "Carol"  -- buyerAgent
     david <- allocateParty "David"  -- sellerAgent
 
+    let
+        property = Property with
+            streetAddress = "123 Main St, Anywhere, FL 123456"
+            county = "Orange"
+            taxId = "1234567890"
+            legalDescr = "Lot 1, Happy Homes Subdivision"
+            personalProperty = "None"
+            excludedItems = "None"
+
+    let
+        escrowAgent = EscrowAgent with
+            name = "Faythe"
+            address = "456 Closing Ln., Anytown, Florida 123456"
+            phone = "(123) 456-7890"
+            email = "faythe@titlecompany.com"
+            fax = "(123) 456-7891"
 
     offer03 <- submit david do
         createCmd SellerAgencyProposal with
             seller = alice
             sellerAgent = david
+            property
+            listPrice = 100000.00
     
     offer04 <- submit alice do
         exerciseCmd offer03 AcceptSellerAgency
 
     offer05 <- submit david do
-        exerciseCmd offer04 PrepareListing with
-            listPrice = 100000.00
+        exerciseCmd offer04 PrepareListing
 
     offer06 <- submit alice do
         exerciseCmd offer05 ApproveListing
@@ -251,31 +318,72 @@ setup = script do
             parties = Parties with
                 seller = alice
                 buyer = bob
+        let
+            terms = Terms with
+                purchasePrice = 80000.00
+                initialDeposit = 5000.00
+                initialDepositTime = 3
+                balanceToClose = 75000.00
+                timeForAcceptance = date 2021 Oct 21
+                closingDate = date 2021 Nov 15
+                isAssignable = "No"
+                titleEvidenceDeadline = 5
+                whoDesignatesClosingAgent = "Seller"
+                inspectionPeriod = 10
+                offerIsCountered = False
+                offerIsRejected = False
+    
+    counterOfferIsCountered : Bool            counterofferIsRejected : Bool
+    
+
         exerciseCmd offer08 PrepareOffer with
             parties
+            property
+            escrowAgent
+            terms
             sellerAgent = david
-            amount = 90000.00
+
 
     offer20 <- submit bob do
-        exerciseCmd offer10 SignOffer
+        exerciseCmd offer10 ApproveOffer
 
     offer25 <- submit alice do
         exerciseCmd offer20 IndicateCounteroffer
-    
+
     offer26 <- submit bob do
         archiveCmd offer25
-    
+ 
     offer30 <- submit david do
         let
             parties = Parties with
                 seller = alice
                 buyer = bob
+
+            terms = Terms with
+                purchasePrice = 90000.00
+                initialDeposit = 5000.00
+                initialDepositTime = 3
+                balanceToClose = 85000.00
+                timeForAcceptance = date 2021 Oct 21
+                closingDate = date 2021 Nov 15
+                isAssignable = "No"
+                titleEvidenceDeadline = 5
+                whoDesignatesClosingAgent = "Seller"
+                inspectionPeriod = 10
+                offerIsCountered = False
+                offerIsRejected = False
+    
+    counterOfferIsCountered : Bool            counterofferIsRejected : Bool
+    
+
         createCmd PreparedCounteroffer with
             parties
-            amount = 95000.00
+            property
+            escrowAgent
+            terms
             sellerAgent = david
             buyerAgent = carol
-
+   
     offer40 <- submit alice do
         exerciseCmd offer30 SignCounteroffer
 
