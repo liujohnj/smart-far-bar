@@ -184,6 +184,8 @@ template TenderedOffer
 
         controller parties.seller can
             AcceptOffer : ContractId ExecutedContract
+                with
+                    escrowAgentName : Party
                 do
                     create ExecutedContract with
                         parties
@@ -192,6 +194,7 @@ template TenderedOffer
                         terms
                         sellerAgent
                         buyerAgent
+                        escrowAgentName
 
             RejectOffer : ContractId TenderedOffer
                 do
@@ -211,9 +214,10 @@ template ExecutedContract
         terms : Terms
         sellerAgent : Party
         buyerAgent : Party
+        escrowAgentName : Party
     where
         signatory parties.seller, parties.buyer
-        observer sellerAgent, buyerAgent
+        observer sellerAgent, buyerAgent, escrowAgentName
 
 template PreparedCounteroffer
     with
@@ -251,6 +255,8 @@ template TenderedCounteroffer
 
         controller parties.buyer can
                 AcceptCounteroffer : ContractId ExecutedContract
+                    with
+                        escrowAgentName : Party
                     do
                         create ExecutedContract with
                             parties
@@ -259,6 +265,7 @@ template TenderedCounteroffer
                             terms
                             sellerAgent
                             buyerAgent
+                            escrowAgentName
 
                 RejectCounteroffer : ContractId TenderedCounteroffer
                     do
@@ -277,6 +284,7 @@ setup = script do
     bob <- allocateParty "Bob"      -- buyer
     carol <- allocateParty "Carol"  -- buyerAgent
     david <- allocateParty "David"  -- sellerAgent
+    faythe <- allocateParty "Faythe" -- escrowAgentName
 
     let
         property = Property with
@@ -394,7 +402,10 @@ setup = script do
     offer45 <- submit carol do
         exerciseCmd offer40 IndicateCounterToCounteroffer
 
-    submit <- submit carol do
+    offer46 <- submit alice do
+        archiveCmd offer45
+
+    offer50 <- submit carol do
         let
             parties = Parties with
                 seller = alice
@@ -420,6 +431,13 @@ setup = script do
             parties
             property
             escrowAgent
-            terms = Terms
+            terms
             sellerAgent = david
             buyerAgent = carol
+
+    offer55 <- submit bob do
+        exerciseCmd offer50 ApproveOffer
+
+    submit alice do
+        exerciseCmd offer55 AcceptOffer with
+            escrowAgentName = faythe
