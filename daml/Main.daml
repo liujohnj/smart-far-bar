@@ -41,7 +41,7 @@ data Terms = Terms
         inspectionPeriod : Int
         offerIsCountered : Bool
         offerIsRejected : Bool
-        counterOfferIsCountered : Bool
+        counterofferIsCountered : Bool
         counterofferIsRejected : Bool
     deriving (Eq, Show)
 
@@ -265,6 +265,12 @@ template TenderedCounteroffer
                         create this with
                             terms.counterofferIsRejected = True
 
+        controller buyerAgent can
+                IndicateCounterToCounteroffer : ContractId TenderedCounteroffer
+                    do
+                        create this with
+                            terms.counterofferIsCountered = True
+                    
 
 setup = script do
     alice <- allocateParty "Alice"  -- seller
@@ -332,10 +338,9 @@ setup = script do
                 inspectionPeriod = 10
                 offerIsCountered = False
                 offerIsRejected = False
+                counterofferIsCountered = False
+                counterofferIsRejected = False
     
-    counterOfferIsCountered : Bool            counterofferIsRejected : Bool
-    
-
         exerciseCmd offer08 PrepareOffer with
             parties
             property
@@ -370,12 +375,11 @@ setup = script do
                 titleEvidenceDeadline = 5
                 whoDesignatesClosingAgent = "Seller"
                 inspectionPeriod = 10
-                offerIsCountered = False
+                offerIsCountered = True
                 offerIsRejected = False
+                counterofferIsCountered = False
+                counterofferIsRejected = False
     
-    counterOfferIsCountered : Bool            counterofferIsRejected : Bool
-    
-
         createCmd PreparedCounteroffer with
             parties
             property
@@ -387,5 +391,35 @@ setup = script do
     offer40 <- submit alice do
         exerciseCmd offer30 SignCounteroffer
 
-    submit bob do
-        exerciseCmd offer40 AcceptCounteroffer
+    offer45 <- submit carol do
+        exerciseCmd offer40 IndicateCounterToCounteroffer
+
+    submit <- submit carol do
+        let
+            parties = Parties with
+                seller = alice
+                buyer = bob
+
+            terms = Terms with
+                purchasePrice = 87500.00
+                initialDeposit = 5000.00
+                initialDepositTime = 3
+                balanceToClose = 82500.00
+                timeForAcceptance = date 2021 Oct 21
+                closingDate = date 2021 Nov 15
+                isAssignable = "No"
+                titleEvidenceDeadline = 5
+                whoDesignatesClosingAgent = "Seller"
+                inspectionPeriod = 10
+                offerIsCountered = False
+                offerIsRejected = False
+                counterofferIsCountered = True
+                counterofferIsRejected = False
+
+        createCmd PreparedOffer with
+            parties
+            property
+            escrowAgent
+            terms = Terms
+            sellerAgent = david
+            buyerAgent = carol
