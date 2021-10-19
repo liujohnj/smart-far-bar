@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import BuyerDashboard from './BuyerDashboard';
+import ListingForm from './ListingForm';
 const axios = require('axios');
 
 
@@ -219,6 +221,14 @@ const TestWorkflow = () => {
                     return <p key={key}>{contract.contractId}</p>
                 })}
                 
+            </div>
+
+            <div>
+                <BuyerDashboard />
+            </div>
+
+            <div>
+                <ListingForm />
             </div>
         </div>
     );
