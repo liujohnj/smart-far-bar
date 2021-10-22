@@ -4,13 +4,9 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
+import Login from './components/Login';
 import TestWorkflow from './components/TestWorkflow';
-import CreateListing from './components/CreateListing';
-import RealtorDashboard from './components/RealtorDashboard';
-import SellerDashboard from './components/SellerDashboard';
-import BuyerDashboard from './components/BuyerDashboard';
-import ClientDashboard from './components/BuyerDashboard';
-import AgentDashboard from './components/BuyerDashboard';
+import Dashboard from './components/Dashboard';
 
 
 const App = () => {
@@ -19,25 +15,13 @@ const App = () => {
             <Router>        
                 <Switch>
                     <Route exact path="/">
+                        <Login />
+                    </Route>
+                    <Route exact path="/test">
                         <TestWorkflow />
                     </Route>
-                    <Route path="/client">
-                        <ClientDashboard />
-                    </Route>
-                    <Route path="/client">
-                        <AgentDashboard />
-                    </Route>
-                    <Route path="/list">
-                        <CreateListing />
-                    </Route>
-                    <Route path="/realtor">
-                        <RealtorDashboard />
-                    </Route>
-                    <Route path="/seller">
-                        <SellerDashboard />
-                    </Route>
-                    <Route path="/buyer">
-                        <BuyerDashboard />
+                    <Route exact path="/dashboard">
+                        <Dashboard />
                     </Route>
                 </Switch>
             </Router>
