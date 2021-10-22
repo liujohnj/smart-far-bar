@@ -8,6 +8,7 @@ parties:
   - Carol
   - David
   - Faythe
+  - Olivia
 version: 0.0.1
 dependencies:
   - daml-prim
