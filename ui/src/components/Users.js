@@ -3,12 +3,12 @@
 const users = {
 
     'Alice': {
-        type: 'client',
+        type: 'Client',
         role: 'seller',
         contacts: ['David']
     },
     'Bob': {
-        type: 'client',
+        type: 'Client',
         role: 'buyer',
         contacts: ['Carol']
     },

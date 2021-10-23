@@ -11,24 +11,14 @@ import Paper from '@mui/material/Paper';
 import { returnContacts, returnUserRole } from './Users';
 const axios = require('axios');
 
-const MyContacts = (props) => {
-    const user = props.user;
+
+const MyAgents = (props) => {
+    const user = props.user
     const [ledgerParties, setLedgerParties] = useState([]);
     const [agencyStatus, setAgencyStatus] = useState("unsigned");
-    const [action, setAction] = useState(user === "Carol" ? "propose" : "accept");
-    const [contractId, setContractId] = useState('');
+    const action = "propose agency"
 
-    let token = "";
-    const tokenCarol = "Bearer " + process.env.REACT_APP_TOKEN_CAROL;
-    const tokenBob = "Bearer " + process.env.REACT_APP_TOKEN_BOB;
-    if (user === "Carol") {
-        token = "Bearer " + process.env.REACT_APP_TOKEN_CAROL;
-    }
-    if (user === "Bob") {
-        token = "Bearer " + process.env.REACT_APP_TOKEN_BOB;
-    }
-    
-    console.log("token: ", token);
+    const tokenBob = "Bearer " + ProcessingInstruction.env.REACT_APP_TOKEN_CAROL;
 
     // REST API to fetch all known parties
     const FetchAllKnownParties = async () => {
@@ -55,7 +45,7 @@ const MyContacts = (props) => {
     }, [])
 
     // REST API to get all active contracts matching a given query
-    const getMatchingContracts = async (name, templateId) => {
+    const getMatchingContracts = async (name) => {
         try {
             console.log("getMatchingContracts running");
             const response = await axios({
@@ -64,15 +54,12 @@ const MyContacts = (props) => {
                 withCredentials: true,     
                 headers:
                     {
-                        "Authorization": token,
+                        "Authorization": tokenBob,
                         "Content-Type": "application/json",
                     },
                 data:
                     {
-                        "templateIds":
-                            [
-                                templateId
-                            ],
+                        "templateIds": ["Main:BuyerAgencyCreated"],
                         "query":
                             {
                                 "buyerAgent": "Carol",
@@ -80,26 +67,12 @@ const MyContacts = (props) => {
                             }
                     },     
             });
-            const obj = response.data.result
+            const obj = response.data.result;
             console.log("response.data.result = ", obj);
-
             if (obj.length > 0) {
                 console.log("obj.length > 0");
-                const id = obj[0].contractId
-                console.log("id = ", id);
-                setContractId(id);
-                if (templateId === "Main:BuyerAgencyProposal") {
-                    if (user === "Bob") {
-                        setAgencyStatus("awaiting my acceptance");
-                        setAction("accept");
-                    } else {
-                        setAgencyStatus("pending Client acceptance");
-                        setAction("propose");
-                    }
-                } else if (templateId === "Main:BuyerAgencyCreate") {
-                        setAgencyStatus("engaged");
-                }
-            }
+                setAgencyStatus("signed");
+            };
         } catch(err) {
             console.log("ERROR---> ", err);
         }
@@ -114,8 +87,7 @@ const MyContacts = (props) => {
         const contactName = contactsInLedger[i];
         const contactRole = returnUserRole(contactName);
 
-        getMatchingContracts(contactName, "Main:BuyerAgencyProposal");
-        getMatchingContracts(contactName, "Main:BuyerAgencyCreated");
+        getMatchingContracts(contactName);
     
         rows.push({contactName, contactRole, agencyStatus, action});
         console.log("rows = ", rows);
@@ -130,7 +102,7 @@ const MyContacts = (props) => {
                 withCredentials: true,
                 headers:
                     {
-                        "Authorization": token,
+                        "Authorization": tokenBob,
                         "Content-Type": "application/json",
                     },
                 data:
@@ -145,38 +117,10 @@ const MyContacts = (props) => {
                     }
             });
             console.log("response after proposing: ", response.data);
-            setAgencyStatus("engaged");
         } catch (err) {
             console.log(err);
         }
     }
-
-    const acceptBuyerAgency = async () => {
-        console.log("accepted!");
-        try {
-            const response = await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": token,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": "Main:BuyerAgencyProposal",
-                        "contractId": contractId,
-                        "choice": "AcceptBuyerAgency",
-                        "argument": {},
-                    }
-            });
-            console.log("response after proposing: ", response.data);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
 
     return (
         <div>
@@ -213,22 +157,14 @@ const MyContacts = (props) => {
                             <TableCell align="right">{row.contactRole}</TableCell>
                             <TableCell align="right">{row.agencyStatus}</TableCell>
                             <TableCell align="right">
-                                {row.action === "propose" && <Button
+                                <Button
                                     variant="outlined"
                                     size="small"
-                                    disabled={row.agencyStatus!=="unsigned"}
+                                    disabled={row.agencyStatus==="signed"}
                                     onClick={proposeBuyerAgency}
                                 >
                                     {row.action}
-                                </Button>}
-                                {row.action === "accept" && <Button
-                                    variant="outlined"
-                                    size="small"
-                                    disabled={row.agencyStatus==="unsigned"}
-                                    onClick={acceptBuyerAgency}
-                                >
-                                    {row.action}
-                                </Button>}
+                                </Button>
                             </TableCell>
                         </TableRow>
                     ))}
@@ -239,4 +175,4 @@ const MyContacts = (props) => {
     )
 }
 
-export default MyContacts;
+export default MyAgents;

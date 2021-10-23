@@ -15,15 +15,21 @@ const Dashboard = () => {
         <div>
             <div>
                 <ButtonAppBar />
-                <Typography variant="h4">
-                    Dashboard
+                <Typography variant="h5" color="primary"
+                    sx={{
+                        m: 2,
+                    }}
+                >
+                    {userType} Dashboard
                 </Typography>
 
-                <Typography variant="h6">
-                    Welcome, {user}.
-                    <br />
-                    Type: {userType}
-                    <br />
+                <Typography variant="body1"
+                    sx={{
+                        ml: 4,
+                        mb: 2,
+                    }}
+                >
+                    <em>Welcome, {user}.</em>
                 </Typography>
             </div>
 

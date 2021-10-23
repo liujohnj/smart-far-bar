@@ -77,7 +77,7 @@ const Login = () => {
                                             Alice (Seller)
                                         </MenuItem>
                                         <MenuItem value='Bob'>
-                                            Buyer (Bob)
+                                            Bob (Buyer)
                                         </MenuItem>
                                         <MenuItem value='Carol'>
                                             Carol (Buyer's Agent)

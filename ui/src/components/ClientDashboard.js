@@ -1,11 +1,12 @@
-//import MyContacts from "./MyContacts";
+import MyContacts from "./MyContacts";
 
-const ClientDashboard = () => {
+const ClientDashboard = (props) => {
+    const user = props.user
 
     
     return (
         <div>
-            Hello
+             <MyContacts user={user} />
         </div>
     )
 }
