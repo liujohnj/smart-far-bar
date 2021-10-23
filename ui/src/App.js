@@ -10,9 +10,10 @@ import Dashboard from './components/Dashboard';
 
 
 const App = () => {
+
     return (
         <div>
-            <Router>        
+            <Router>
                 <Switch>
                     <Route exact path="/">
                         <Login />

@@ -6,13 +6,12 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-//import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import LoginIcon from '@mui/icons-material/Login';
-
+import ButtonAppBar from './ButtonAppBar';
 
 const Login = () => {
-
+    
     const [username, setUsername] = useState('');
    
     const handleChange = (event) => {
@@ -23,6 +22,7 @@ const Login = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        localStorage.setItem('user', username);
         history.push({
             pathname: '/dashboard',
             state: { username }
@@ -31,37 +31,76 @@ const Login = () => {
     
     return (
         <div>
-            <Typography variant="h4" sx={{mb:5}}>Login</Typography>
-            <Box sx={{ maxWidth: 250 }}>
-                <form onSubmit={handleSubmit}>
-                    <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Username</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={username}
-                            label="Username"
-                            onChange={handleChange}
+            <ButtonAppBar />
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <Box
+                    sx={{
+                        mt: 4,
+                    }}
+                >
+                    <Typography variant="h4" color="primary" sx={{ mb:5 }}>
+                        Login
+                    </Typography>       
+                </Box>
+                
+                <Box>
+                    <form onSubmit={handleSubmit}> 
+                        <FormControl>
+                            <Box fullWidth
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    bgcolor: 'background.paper',
+                                }}
                             >
-                                <MenuItem value='Alice'>
-                                    Alice (Seller)
-                                </MenuItem>
-                                <MenuItem value='Bob'>
-                                    Buyer (Bob)
-                                </MenuItem>
-                                <MenuItem value='Carol'>
-                                    Carol (Buyer's Agent)
-                                </MenuItem>
-                                <MenuItem value='David'>
-                                    Alice (Seller's Agent)
-                                </MenuItem>
-                               
-                        </Select>
-                        <IconButton color="primary" size="large" aria-label="login" type="submit">
-                            <LoginIcon />
-                        </IconButton>
-                    </FormControl>
-                </form>
+                                <Box>
+                                    <InputLabel id="demo-simple-select-label">Username</InputLabel>
+                                </Box>
+
+                                <Box>
+                                    <Select sx={{ minWidth: 200 }}
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        value={username}
+                                        label="Username"
+                                        onChange={handleChange}
+                                    >
+                                        <MenuItem value='Alice'>
+                                            Alice (Seller)
+                                        </MenuItem>
+                                        <MenuItem value='Bob'>
+                                            Buyer (Bob)
+                                        </MenuItem>
+                                        <MenuItem value='Carol'>
+                                            Carol (Buyer's Agent)
+                                        </MenuItem>
+                                        <MenuItem value='David'>
+                                            Alice (Seller's Agent)
+                                        </MenuItem>
+                                    </Select>
+                                </Box>
+
+                                <Box>
+                                    <IconButton color="primary" type="submit">
+                                        <LoginIcon
+                                            sx={{
+                                                fontSize: 45,
+                                            }}
+                                        />
+                                    </IconButton>           
+                                </Box>
+                            </Box>
+                        </FormControl>
+                    </form>
+                </Box>
             </Box>
         </div>
     )
