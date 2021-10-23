@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { Box } from "@mui/system";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -54,7 +55,8 @@ const MyContacts = (props) => {
         FetchAllKnownParties();
     }, [])
 
-    // REST API to get all active contracts matching a given query
+    // Uses REST API to get all active contracts matching a given query.
+    //   Fetches all agency-related contracts.
     const getMatchingContracts = async (name, templateId) => {
         try {
             console.log("getMatchingContracts running");
@@ -71,12 +73,12 @@ const MyContacts = (props) => {
                     {
                         "templateIds":
                             [
-                                templateId
+                                "Main:BuyerAgencyProposal",
+                                "Main:BuyerAgencyCreate"
                             ],
                         "query":
                             {
                                 "buyerAgent": "Carol",
-                                "buyer": "Bob",
                             }
                     },     
             });
@@ -85,6 +87,11 @@ const MyContacts = (props) => {
 
             if (obj.length > 0) {
                 console.log("obj.length > 0");
+                
+                //const names = obj.map(name => name.displayName);
+                
+                
+                
                 const id = obj[0].contractId
                 console.log("id = ", id);
                 setContractId(id);
@@ -180,6 +187,8 @@ const MyContacts = (props) => {
 
     return (
         <div>
+
+            {/*
             <Typography variant="subtitle1"
                 sx={{
                     m: 2,
@@ -187,54 +196,67 @@ const MyContacts = (props) => {
             >
                 My Contacts/Clients
             </Typography>
-            <TableContainer component={Paper}
+            */}
+            <Box
                 sx={{
-                    m: 2,
+                    mr: 4,
                 }}
-                >
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableHead>
-                    <TableRow>
-                        <TableCell>Name</TableCell>
-                        <TableCell align="right">Role</TableCell>
-                        <TableCell align="right">Agency Status</TableCell>
-                        <TableCell align="right">Action</TableCell>
-                    </TableRow>
-                    </TableHead>
-                    <TableBody>
-                    {rows.map((row) => (
-                        <TableRow
-                            key={row.name}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        >
-                            <TableCell component="th" scope="row">
-                                {row.contactName}
-                            </TableCell>
-                            <TableCell align="right">{row.contactRole}</TableCell>
-                            <TableCell align="right">{row.agencyStatus}</TableCell>
-                            <TableCell align="right">
-                                {row.action === "propose" && <Button
-                                    variant="outlined"
-                                    size="small"
-                                    disabled={row.agencyStatus!=="unsigned"}
-                                    onClick={proposeBuyerAgency}
-                                >
-                                    {row.action}
-                                </Button>}
-                                {row.action === "accept" && <Button
-                                    variant="outlined"
-                                    size="small"
-                                    disabled={row.agencyStatus==="unsigned"}
-                                    onClick={acceptBuyerAgency}
-                                >
-                                    {row.action}
-                                </Button>}
-                            </TableCell>
+            >
+                <TableContainer component={Paper}
+                    sx={{
+                        ml: 2,
+                        mr: 5,
+                    }}
+                    >
+                    <Table
+                        sx={{
+                                
+                                mr: 5,
+                        }} 
+                        aria-label="simple table">
+                        <TableHead>
+                        <TableRow>
+                            <TableCell>Name</TableCell>
+                            <TableCell align="right">Role</TableCell>
+                            <TableCell align="right">Agency Status</TableCell>
+                            <TableCell align="right">Action</TableCell>
                         </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                        {rows.map((row) => (
+                            <TableRow
+                                key={row.name}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            >
+                                <TableCell component="th" scope="row">
+                                    {row.contactName}
+                                </TableCell>
+                                <TableCell align="right">{row.contactRole}</TableCell>
+                                <TableCell align="right">{row.agencyStatus}</TableCell>
+                                <TableCell align="right">
+                                    {row.action === "propose" && <Button
+                                        variant="outlined"
+                                        size="small"
+                                        disabled={row.agencyStatus!=="unsigned"}
+                                        onClick={proposeBuyerAgency}
+                                    >
+                                        {row.action}
+                                    </Button>}
+                                    {row.action === "accept" && <Button
+                                        variant="outlined"
+                                        size="small"
+                                        disabled={row.agencyStatus==="unsigned"}
+                                        onClick={acceptBuyerAgency}
+                                    >
+                                        {row.action}
+                                    </Button>}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Box>
         </div>
     )
 }

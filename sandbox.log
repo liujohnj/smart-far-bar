@@ -51,3 +51,6 @@ Caused by: java.net.BindException: Address already in use: bind
 12:36:38.842 [sandbox-akka.actor.default-dispatcher-5] INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started 
 12:36:47.814 [program-resource-pool-3] INFO  c.d.p.apiserver.LedgerApiServer - Listening on localhost:6865 over plain text. 
 12:36:47.857 [program-resource-pool-2] INFO  com.daml.platform.sandboxnext.Runner - Initialized sandbox version 1.16.0 with ledger-id = daml-smart-far-bar, port = 6865, dar file = List(.daml\dist\smart-far-bar-0.0.1.dar), time mode = wall-clock time, ledger = in-memory, auth-service = AuthServiceWildcard$, contract ids seeding = strong 
+09:28:21.538 [sandbox-akka.actor.default-dispatcher-4] INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started 
+09:28:30.355 [program-resource-pool-3] INFO  c.d.p.apiserver.LedgerApiServer - Listening on localhost:6865 over plain text. 
+09:28:30.411 [program-resource-pool-4] INFO  com.daml.platform.sandboxnext.Runner - Initialized sandbox version 1.16.0 with ledger-id = daml-smart-far-bar, port = 6865, dar file = List(.daml\dist\smart-far-bar-0.0.1.dar), time mode = wall-clock time, ledger = in-memory, auth-service = AuthServiceWildcard$, contract ids seeding = strong 
