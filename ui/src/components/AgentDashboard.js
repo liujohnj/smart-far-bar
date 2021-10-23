@@ -3,7 +3,8 @@ const axios = require('axios');
 
 const AgentDashboard = () => {
 
-    const tokenCarol = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2RhbWwuY29tL2xlZGdlci1hcGkiOnsibGVkZ2VySWQiOiJkYW1sLXNtYXJ0LWZhci1iYXIiLCJhcHBsaWNhdGlvbklkIjoic21hcnQtZmFyLWJhciIsImFjdEFzIjpbIkNhcm9sIl19fQ.U75sKJ4NZS0avjBr9MXNm-oB2yKuw2eorespQfdsPr4"
+    const tokenCarol = "Bearer " + process.env.REACT_APP_TOKEN_CAROL;
+
 
     const tokenDavid = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2RhbWwuY29tL2xlZGdlci1hcGkiOnsibGVkZ2VySWQiOiJkYW1sLXNtYXJ0LWZhci1iYXIiLCJhcHBsaWNhdGlvbklkIjoic21hcnQtZmFyLWJhciIsImFjdEFzIjpbIkRhdmlkIl19fQ.H4z-WlJVYKoSwrGxQsGIcVV4pj707HeX4rbAUkf3Qbc"
 

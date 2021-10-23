@@ -6,9 +6,10 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import Button from '@mui/material/Button';
+//import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import LoginIcon from '@mui/icons-material/Login';
+
 
 const Login = () => {
 
@@ -22,7 +23,6 @@ const Login = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        console.log(username);
         history.push({
             pathname: '/dashboard',
             state: { username }
