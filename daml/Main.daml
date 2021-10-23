@@ -52,8 +52,7 @@ template SellerAgencyProposal
     with
         seller : Party
         sellerAgent : Party
-        property : Property
-        listPrice : Decimal
+        propertyAddress : Text
         templateType : Text
         isApproved : Bool
     where
@@ -65,8 +64,7 @@ template SellerAgencyProposal
                         create SellerAgencyCreated with
                             seller
                             sellerAgent
-                            property
-                            listPrice
+                            propertyAddress
                             templateType = "SELLER_AGENCY"
                             isApproved = True
 
@@ -74,8 +72,7 @@ template SellerAgencyCreated
     with
         seller : Party
         sellerAgent : Party
-        property : Property
-        listPrice : Decimal
+        propertyAddress : Text
         templateType : Text
         isApproved : Bool
     where
@@ -87,7 +84,6 @@ template SellerAgencyCreated
                     create PreparedListing with
                         seller
                         property
-                        listPrice
                         sellerAgent
                         templateType = "LISTING"
                         isApproved = False
@@ -134,6 +130,7 @@ template BuyerAgencyProposal
     with
         buyer : Party
         buyerAgent : Party
+        propertyAddress: Text
         templateType : Text
         isApproved : Bool
     where
@@ -145,13 +142,23 @@ template BuyerAgencyProposal
                     create BuyerAgencyCreated with
                         buyer
                         buyerAgent
+                        propertyAddress = "-"
                         templateType = "BUYER_AGENCY"
                         isApproved = True
+        
+             -- Reject agency proposal
+            RejectBuyerAgency : ()
+                do return ()
+
+        controller buyerAgent can
+            WithdrawBuyerAgency : ()
+                do return ()
 
 template BuyerAgencyCreated
     with
         buyer : Party
         buyerAgent : Party
+        propertyAddress: Text
         templateType : Text
         isApproved : Bool
     where
@@ -468,8 +475,7 @@ setup = script do
         createCmd SellerAgencyProposal with
             seller = alice
             sellerAgent = david
-            property
-            listPrice = 100000.00
+            propertyAddress = "123 Main St"
             templateType = "SELLER_AGENCY"
             isApproved = False
 
@@ -487,6 +493,7 @@ setup = script do
         createCmd BuyerAgencyProposal with
             buyer = bob
             buyerAgent = carol
+            propertyAddress = "-"
             templateType = "BUYER_AGENCY"
             isApproved = False
  

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import AddClientDialog from "./AddClientDialog";
@@ -6,7 +7,8 @@ import MyAgencies from "./MyAgencies";
 const AgentDashboard = (props) => {
     const user = props.user;
 
-    
+    const [isAgencyUpdated, setIsAgencyUpdated] = useState(false);
+
     return (
         <div>
             <Box
@@ -28,10 +30,10 @@ const AgentDashboard = (props) => {
                     </Typography>
                 </Box>
                 <Box>
-                    <AddClientDialog user={user} />
+                    <AddClientDialog user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} }/>
                 </Box>
             </Box>
-            <MyAgencies user={user} />
+            <MyAgencies user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} } />
         </div>
     )
 }

@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
+//import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FormControl from '@mui/material/FormControl';
@@ -18,7 +18,11 @@ const axios = require('axios');
 
 const AddClientDialog = (props) => {
     const user = props.user;
+    //const setIsAgencyUpdated = props.setIsAgencyUpdated;
+    const { isAgencyUpdated, setIsAgencyUpdated } = props.updateComponent;
+
     const { username, userType, userToken } = user;
+
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [isBuyer, setIsBuyer] = useState(true);
@@ -40,7 +44,7 @@ const AddClientDialog = (props) => {
         setName(event.target.value);
     };
 
-    const proposeBuyerAgency = async () => {
+    const proposeAgency = async (templateId, clientRole, templateType) => {
         try {
             const response = await axios({
                 method: "post",
@@ -55,28 +59,25 @@ const AddClientDialog = (props) => {
                     {
                         "templateId": "Main:BuyerAgencyProposal",
                         "payload": {
-                            "buyer": name,
+                            clientRole: name,
                             "buyerAgent": username,
-                            "templateType": "BUYER_AGENCY",
+                            "templateType": templateType,
                             "isApproved": false,        
                         }
                     }
             });
+            setIsAgencyUpdated(!isAgencyUpdated); // toggle to re-render sibling component
         } catch (err) {
             console.log(err);
         }
     }
-    const proposeSellerAgency = () => {
-
-    }
 
     const handleSubmit = () => {
         if (isBuyer) {
-            proposeBuyerAgency();
+            proposeAgency("Main:BuyerAgencyProposal", "buyer", "BUYER_AGENCY");
         } else {
-            proposeSellerAgency();
+            proposeAgency("Main:SellerAgencyProposal", "seller", "SELLER_AGENCY");
         }
-
         setOpen(false);
     };
 
