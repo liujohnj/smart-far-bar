@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import Typography from '@mui/material/Typography';
-import { returnUserType } from './Users';
+import { returnUserType, returnUserToken } from './Users';
 import ButtonAppBar from './ButtonAppBar';
 import AgentDashboard from './AgentDashboard';
 import ClientDashboard from './ClientDashboard';
@@ -8,8 +8,12 @@ import ClientDashboard from './ClientDashboard';
 
 const Dashboard = () => {
     const location = useLocation();
-    const user = location.state.username
-    const userType = returnUserType(user);
+    const username = location.state.username
+
+    // Back-end server substitute for demo purposes
+    const userType = returnUserType(username);
+    const userToken = returnUserToken(username);
+    const user = {username, userType, userToken}
 
     return (
         <div>
@@ -29,7 +33,7 @@ const Dashboard = () => {
                         mb: 2,
                     }}
                 >
-                    <em>Welcome, {user}.</em>
+                    <em>Welcome, {username}.</em>
                 </Typography>
             </div>
 

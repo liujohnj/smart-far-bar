@@ -1,19 +1,17 @@
 import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import AddClientDialog from "./AddClientDialog";
-import MyContacts from "./MyContacts";
+import MyAgencies from "./MyAgencies";
 
 const AgentDashboard = (props) => {
-    const user = props.user
+    const user = props.user;
 
-
-
+    
     return (
         <div>
             <Box
                 sx={{
                     display: 'flex',
-                    
                     ml: 2,
                     mr: 2,
                     mt: 3,
@@ -30,10 +28,10 @@ const AgentDashboard = (props) => {
                     </Typography>
                 </Box>
                 <Box>
-                    <AddClientDialog />
+                    <AddClientDialog user={user} />
                 </Box>
             </Box>
-            <MyContacts user={user} />
+            <MyAgencies user={user} />
         </div>
     )
 }

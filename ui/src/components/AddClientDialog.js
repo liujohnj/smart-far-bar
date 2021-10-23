@@ -16,11 +16,12 @@ import { FormLabel } from '@mui/material';
 const axios = require('axios');
 
 
-const AddClientDialog = () => {
+const AddClientDialog = (props) => {
+    const user = props.user;
+    const { username, userType, userToken } = user;
     const [open, setOpen] = useState(false);
+    const [name, setName] = useState("");
     const [isBuyer, setIsBuyer] = useState(true);
-
-    const tokenCarol = "Bearer " + process.env.REACT_APP_TOKEN_CAROL;
 
     const handleClickOpen = () => {
     setOpen(true);
@@ -35,8 +36,11 @@ const AddClientDialog = () => {
         setOpen(false);
     };
 
+    const handleInputChange = (event) => {
+        setName(event.target.value);
+    };
+
     const proposeBuyerAgency = async () => {
-        console.log("proposed!");
         try {
             const response = await axios({
                 method: "post",
@@ -44,22 +48,20 @@ const AddClientDialog = () => {
                 withCredentials: true,
                 headers:
                     {
-                        "Authorization": tokenCarol,
+                        "Authorization": userToken,
                         "Content-Type": "application/json",
                     },
                 data:
                     {
                         "templateId": "Main:BuyerAgencyProposal",
                         "payload": {
-                            "buyer": "Bob",
-                            "buyerAgent": "Carol",
+                            "buyer": name,
+                            "buyerAgent": username,
                             "templateType": "BUYER_AGENCY",
                             "isApproved": false,        
                         }
                     }
             });
-            console.log("response after proposing: ", response.data);
-            //setAgencyStatus("engaged");
         } catch (err) {
             console.log(err);
         }
@@ -99,6 +101,8 @@ const AddClientDialog = () => {
                     type="text"
                     fullWidth
                     variant="standard"
+                    value={name}
+                    onChange={handleInputChange}
                 />
 
                 <FormControl component="fieldset" sx={{ mt: 3}}>
@@ -117,8 +121,7 @@ const AddClientDialog = () => {
                     type="text"
                     fullWidth
                     variant="standard"
-                    disabled={isBuyer
-        }
+                    disabled={isBuyer}
                 />
             </DialogContent>
             <DialogActions>

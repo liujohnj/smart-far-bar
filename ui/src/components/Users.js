@@ -5,22 +5,22 @@ const users = {
     'Alice': {
         type: 'Client',
         role: 'seller',
-        contacts: ['David']
+        token: "Bearer " + process.env.REACT_APP_TOKEN_ALICE,
     },
     'Bob': {
         type: 'Client',
         role: 'buyer',
-        contacts: ['Carol']
+        token: "Bearer " + process.env.REACT_APP_TOKEN_BOB,
     },
     'Carol': {
         type: 'Realtor',
         role: 'buyerAgent',
-        contacts: ['Bob']
+        token: "Bearer " + process.env.REACT_APP_TOKEN_CAROL,
     },
     'David': {
         type: 'Realtor',
         role: 'sellerAgent',
-        contacts: ['Alice']
+        token: "Bearer " + process.env.REACT_APP_TOKEN_DAVID,
     },
 }
 
@@ -32,7 +32,11 @@ function returnUserType(username) {
     return users[username].type
 }
 
+function returnUserToken(username) {
+    return users[username].token
+}
+
 function returnUserRole(username) {
     return users[username].role
 }
-export { returnContacts, returnUserType, returnUserRole }
+export { returnContacts, returnUserType, returnUserToken, returnUserRole }
