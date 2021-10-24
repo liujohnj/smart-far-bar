@@ -3,6 +3,7 @@ import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import AddClientDialog from "./AddClientDialog";
 import MyClients from "./MyClients";
+import MyListings from './MyListings';
 
 const AgentDashboard = (props) => {
     const user = props.user;
@@ -35,7 +36,23 @@ const AgentDashboard = (props) => {
                     <AddClientDialog user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} }/>
                 </Box>
             </Box>
-            <MyClients user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} } />
+            <Box>
+                <MyClients user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} } />
+            </Box>
+
+            <Box
+                sx={{
+                    ml: 0,
+                    mr: 2,
+                    mt: 3,
+                }}
+            >
+                <Typography variant="subtitle1" sx={{ml:2, mb:1}} >
+                    My Listings
+                </Typography>
+                <MyListings user={user}/>
+            </Box>
+            
         </div>
     )
 }
