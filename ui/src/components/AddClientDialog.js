@@ -4,7 +4,6 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-//import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FormControl from '@mui/material/FormControl';
@@ -18,13 +17,13 @@ const axios = require('axios');
 
 const AddClientDialog = (props) => {
     const user = props.user;
-    //const setIsAgencyUpdated = props.setIsAgencyUpdated;
     const { isAgencyUpdated, setIsAgencyUpdated } = props.updateComponent;
 
-    const { username, userType, userToken } = user;
+    const { username, userToken } = user;
 
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
+    const [propertyAddress, setPropertyAddress] = useState("");
     const [isBuyer, setIsBuyer] = useState(true);
 
     const handleClickOpen = () => {
@@ -40,13 +39,17 @@ const AddClientDialog = (props) => {
         setOpen(false);
     };
 
-    const handleInputChange = (event) => {
+    const handleInputNameChange = (event) => {
         setName(event.target.value);
     };
 
-    const proposeAgency = async (templateId, clientRole, templateType) => {
+    const handleInputPropertyAddressChange = (event) => {
+        setPropertyAddress(event.target.value);
+    };
+
+    const proposeAgency = async (templateId, address, templateType) => {
         try {
-            const response = await axios({
+            await axios({
                 method: "post",
                 url: '/v1/create',
                 withCredentials: true,
@@ -57,15 +60,19 @@ const AddClientDialog = (props) => {
                     },
                 data:
                     {
-                        "templateId": "Main:BuyerAgencyProposal",
+                        "templateId": templateId,
                         "payload": {
-                            clientRole: name,
-                            "buyerAgent": username,
+                            "party": name,
+                            "agent": username,
+                            "propertyAddress": address,
                             "templateType": templateType,
                             "isApproved": false,        
                         }
                     }
             });
+            setName("");
+            setIsBuyer(true);
+            setPropertyAddress("");
             setIsAgencyUpdated(!isAgencyUpdated); // toggle to re-render sibling component
         } catch (err) {
             console.log(err);
@@ -74,9 +81,9 @@ const AddClientDialog = (props) => {
 
     const handleSubmit = () => {
         if (isBuyer) {
-            proposeAgency("Main:BuyerAgencyProposal", "buyer", "BUYER_AGENCY");
+            proposeAgency("Main:BuyerAgencyProposal", "N/A", "BUYER_AGENCY");
         } else {
-            proposeAgency("Main:SellerAgencyProposal", "seller", "SELLER_AGENCY");
+            proposeAgency("Main:SellerAgencyProposal", propertyAddress,"SELLER_AGENCY");
         }
         setOpen(false);
     };
@@ -103,7 +110,7 @@ const AddClientDialog = (props) => {
                     fullWidth
                     variant="standard"
                     value={name}
-                    onChange={handleInputChange}
+                    onChange={handleInputNameChange}
                 />
 
                 <FormControl component="fieldset" sx={{ mt: 3}}>
@@ -117,11 +124,13 @@ const AddClientDialog = (props) => {
                 <TextField
                     autoFocus
                     margin="dense"
-                    id="streetAddress"
+                    id="propertyAddress"
                     label="Street address (if applicable)"
                     type="text"
                     fullWidth
                     variant="standard"
+                    value={propertyAddress}
+                    onChange={handleInputPropertyAddressChange}
                     disabled={isBuyer}
                 />
             </DialogContent>

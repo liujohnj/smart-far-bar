@@ -9,8 +9,6 @@ parties:
   - David
   - Faythe
   - Olivia
-  - Alfred
-  - Barbara
 version: 0.0.1
 dependencies:
   - daml-prim

@@ -25,7 +25,7 @@ const ButtonAppBar = (props) => {
         });
     }
 
-    console.log("storage: ", localStorage.getItem('user'))
+    
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">

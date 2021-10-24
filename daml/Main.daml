@@ -50,41 +50,54 @@ data Terms = Terms
 
 template SellerAgencyProposal
     with
-        seller : Party
-        sellerAgent : Party
+        party : Party
+        agent : Party
         propertyAddress : Text
         templateType : Text
         isApproved : Bool
     where
-        signatory sellerAgent
+        signatory agent
+        observer party
 
-        controller seller can
+        controller party can
                 AcceptSellerAgency: ContractId SellerAgencyCreated
                     do
                         create SellerAgencyCreated with
-                            seller
-                            sellerAgent
+                            party
+                            agent
                             propertyAddress
                             templateType = "SELLER_AGENCY"
                             isApproved = True
 
+                -- Reject agency proposal
+                RejectSellerAgency : ()
+                    do return ()
+
+        controller agent can
+            WithdrawSellerAgency : ()
+                do return ()
+
 template SellerAgencyCreated
     with
-        seller : Party
-        sellerAgent : Party
+        party : Party
+        agent : Party
         propertyAddress : Text
         templateType : Text
         isApproved : Bool
     where
-        signatory seller, sellerAgent
+        signatory party, agent
     
-        controller sellerAgent can
+        controller agent can
             nonconsuming PrepareListing: ContractId PreparedListing
+                with
+                    property : Property
+                    listPrice : Decimal
                 do
                     create PreparedListing with
-                        seller
+                        seller = party
                         property
-                        sellerAgent
+                        listPrice
+                        sellerAgent = agent
                         templateType = "LISTING"
                         isApproved = False
 
@@ -128,21 +141,22 @@ template ApprovedListing
 
 template BuyerAgencyProposal
     with
-        buyer : Party
-        buyerAgent : Party
+        party : Party
+        agent : Party
         propertyAddress: Text
         templateType : Text
         isApproved : Bool
     where
-        signatory buyerAgent
+        signatory agent
+        observer party
 
-        controller buyer can
+        controller party can
             AcceptBuyerAgency: ContractId BuyerAgencyCreated
                 do
                     create BuyerAgencyCreated with
-                        buyer
-                        buyerAgent
-                        propertyAddress = "-"
+                        party
+                        agent
+                        propertyAddress = "N/A"
                         templateType = "BUYER_AGENCY"
                         isApproved = True
         
@@ -150,21 +164,21 @@ template BuyerAgencyProposal
             RejectBuyerAgency : ()
                 do return ()
 
-        controller buyerAgent can
+        controller agent can
             WithdrawBuyerAgency : ()
                 do return ()
 
 template BuyerAgencyCreated
     with
-        buyer : Party
-        buyerAgent : Party
+        party : Party
+        agent : Party
         propertyAddress: Text
         templateType : Text
         isApproved : Bool
     where
-        signatory buyer, buyerAgent
+        signatory party, agent
     
-        controller buyerAgent can
+        controller agent can
             nonconsuming PrepareOffer: ContractId PreparedOffer
                 with
                     parties : Parties
@@ -179,7 +193,7 @@ template BuyerAgencyCreated
                         escrowAgent
                         terms
                         sellerAgent
-                        buyerAgent
+                        buyerAgent = agent
                         templateType = "OFFER"
                         isApproved = False
 
@@ -473,8 +487,8 @@ setup = script do
 
     offer03 <- submit david do
         createCmd SellerAgencyProposal with
-            seller = alice
-            sellerAgent = david
+            party = alice
+            agent = david
             propertyAddress = "123 Main St"
             templateType = "SELLER_AGENCY"
             isApproved = False
@@ -483,7 +497,9 @@ setup = script do
         exerciseCmd offer03 AcceptSellerAgency
 
     offer05 <- submit david do
-        exerciseCmd offer04 PrepareListing
+        exerciseCmd offer04 PrepareListing with
+            property
+            listPrice = 100000.00
 
     offer06 <- submit alice do
         exerciseCmd offer05 ApproveListing with
@@ -491,9 +507,9 @@ setup = script do
 
     offer07 <- submit carol do
         createCmd BuyerAgencyProposal with
-            buyer = bob
-            buyerAgent = carol
-            propertyAddress = "-"
+            party = bob
+            agent = carol
+            propertyAddress = "N/A"
             templateType = "BUYER_AGENCY"
             isApproved = False
  

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import AddClientDialog from "./AddClientDialog";
-import MyAgencies from "./MyAgencies";
+import MyClients from "./MyClients";
 
 const AgentDashboard = (props) => {
     const user = props.user;
@@ -14,6 +14,7 @@ const AgentDashboard = (props) => {
             <Box
                 sx={{
                     display: 'flex',
+                    alignItems: 'center',
                     ml: 2,
                     mr: 2,
                     mt: 3,
@@ -23,6 +24,7 @@ const AgentDashboard = (props) => {
                     sx=
                         {{
                             flexGrow: 1,
+                            
                         }}
                 >
                     <Typography variant="subtitle1">
@@ -33,7 +35,7 @@ const AgentDashboard = (props) => {
                     <AddClientDialog user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} }/>
                 </Box>
             </Box>
-            <MyAgencies user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} } />
+            <MyClients user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} } />
         </div>
     )
 }

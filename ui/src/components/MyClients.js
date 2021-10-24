@@ -11,25 +11,23 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
-//import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-//import { returnContacts, returnUserRole } from './Users';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 const axios = require('axios');
 
-const MyAgencies = (props) => {
+const MyClients = (props) => {
     const user = props.user;
     //const isAgencyUpdated = props.isAgencyUpdated;
-    const { isAgencyUpdated, setIsAgencyUpdated } = props.updateComponent;
+    const { isAgencyUpdated } = props.updateComponent;
 
     const { username, userType, userToken } = user;
-    const [action, setAction] = useState(userType === "Realtor" ? "propose" : "accept");
-    const [contractId, setContractId] = useState('');
+    const action = (userType === "Realtor" ? "propose" : "accept");
     const [rows, setRows] = useState([]);
+    const [isArchived, setIsArchived] = useState(false);
 
 
     // Uses REST API to get all active contracts matching a given query.
     //   Fetches all agency-related contracts.
     const getMatchingContracts = async () => {
-        console.log("launching getMatching");
         try {
             const response = await axios({
                 method: "post",
@@ -45,11 +43,13 @@ const MyAgencies = (props) => {
                         "templateIds":
                             [
                                 "Main:BuyerAgencyProposal",
-                                "Main:BuyerAgencyCreated"
+                                "Main:BuyerAgencyCreated",
+                                "Main:SellerAgencyProposal",
+                                "Main:SellerAgencyCreated"
                             ],
                         "query":
                             {
-                                "buyerAgent": username,
+                                "agent": username,
                             }
                     },     
             });
@@ -57,8 +57,9 @@ const MyAgencies = (props) => {
 
             if (obj.length > 0) {
                 const ids = obj.map(id => id.contractId);
-                const matchingNames = obj.map(matchingName => matchingName.payload.buyer);
+                const matchingNames = obj.map(matchingName => matchingName.payload.party);
                 const types = obj.map(type => type.payload.templateType);
+                const addresses = obj.map(address => address.payload.propertyAddress);
                 const approvals = obj.map(type => type.payload.isApproved);
                 
                 let tempRows = []
@@ -66,11 +67,14 @@ const MyAgencies = (props) => {
                     const contractId = ids[i];
                     const contactName = matchingNames[i];
                     const contactRole = (types[i] === "BUYER_AGENCY" ? "buyer" : "seller");
+                    const streetAddress = addresses[i];
                     const agencyStatus = (approvals[i] === true ? "active" : "pending");
 
-                    tempRows.push({contractId, contactName, contactRole, agencyStatus, action});
+                    tempRows.push({contractId, contactName, contactRole, streetAddress, agencyStatus, action});
                 }
                 setRows(tempRows);
+            } else {
+                setRows([]);
             }
         } catch(err) {
             console.log("ERROR---> ", err);
@@ -79,13 +83,12 @@ const MyAgencies = (props) => {
 
     useEffect(() => {
         getMatchingContracts();
-        console.log("something happened");
-    }, [isAgencyUpdated]);
+    }, [isAgencyUpdated, isArchived]);
     
 
-    const acceptBuyerAgency = async () => {
+    const archiveAgencyProposal = async (templateId, contractId, choice) => {
         try {
-            const response = await axios({
+            await axios({
                 method: "post",
                 url: '/v1/exercise',
                 withCredentials: true,
@@ -96,42 +99,30 @@ const MyAgencies = (props) => {
                     },
                 data:
                     {
-                        "templateId": "Main:BuyerAgencyProposal",
+                        "templateId": templateId,
                         "contractId": contractId,
-                        "choice": "AcceptBuyerAgency",
+                        "choice": choice,
                         "argument": {},
                     }
             });
+            console.log("isArchived = ", isArchived);
+            setIsArchived(!isArchived);
         } catch (err) {
             console.log(err);
         }
     }
 
-    const archiveAgencyProposal = async (contractId) => {
-        try {
-            const response = await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": userToken,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": "Main:BuyerAgencyProposal",
-                        "contractId": contractId,
-                        "choice": "WithdrawBuyerAgency",
-                        "argument": {},
-                    }
-            });
-            setRows([]);        // re-renders table
-        } catch (err) {
-            console.log(err);
+    const handleArchiveAgency = (contractId, contactRole) => {
+        if (contactRole === "buyer") {
+            archiveAgencyProposal("Main:BuyerAgencyProposal", contractId, "WithdrawBuyerAgency");
+        } else {
+            archiveAgencyProposal("Main:SellerAgencyProposal", contractId,"WithdrawSellerAgency");
         }
-    }
+    };
 
+    const handleCreateListing = (contractId) => {
+        console.log("hello");
+    }
 
     return (
         <div>
@@ -154,9 +145,10 @@ const MyAgencies = (props) => {
                         aria-label="simple table">
                         <TableHead>
                         <TableRow>
-                            <TableCell>ID</TableCell>
+                            <TableCell>Agency Contract ID</TableCell>
                             <TableCell align="right">Name</TableCell>
                             <TableCell align="right">Role</TableCell>
+                            <TableCell align="right">Property</TableCell>
                             <TableCell align="right">Agency Status</TableCell>
                             <TableCell align="right">Action</TableCell>
                         </TableRow>
@@ -164,7 +156,7 @@ const MyAgencies = (props) => {
                         <TableBody>
                         {rows.map((row) => (
                             <TableRow
-                                key={row.name}
+                                key={row.contractId}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell component="th" scope="row">
@@ -172,13 +164,26 @@ const MyAgencies = (props) => {
                                 </TableCell>
                                 <TableCell align="right">{row.contactName}</TableCell>
                                 <TableCell align="right">{row.contactRole}</TableCell>
+                                <TableCell align="right">{row.streetAddress}</TableCell>
                                 <TableCell align="right">{row.agencyStatus}</TableCell>
                                 <TableCell align="right">
                                 <ButtonGroup variant="contained">
                                     <IconButton
+                                        disabled={row.contactRole === 'buyer' || row.agencyStatus === "pending"}
+                                        color="primary"
+                                        onClick={() => handleCreateListing(row.contractId)}
+                                    >
+                                        <CreateNewFolderIcon
+                                            sx={{
+                                            fontSize: 23, 
+                                            }}
+                                        />
+                                    </IconButton>
+                                    
+                                    <IconButton
                                         disabled={row.agencyStatus === "active"}
                                         color="primary"
-                                        onClick={() => archiveAgencyProposal(row.contractId)}
+                                        onClick={() => handleArchiveAgency(row.contractId, row.contactRole)}
                                     >
                                         <DeleteIcon
                                             sx={{
@@ -198,4 +203,4 @@ const MyAgencies = (props) => {
     )
 }
 
-export default MyAgencies;
+export default MyClients;
