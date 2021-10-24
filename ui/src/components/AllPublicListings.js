@@ -11,23 +11,31 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import AddListingDialog from './AddListingDialog';
+import EditIcon from '@mui/icons-material/Edit';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 const axios = require('axios');
 
-
-const MyRealtors = (props) => {
+const AllPublicListings = (props) => {
     const user = props.user;
-    const { isAgencyUpdated } = props.updateComponent;
     const { username, userType, userToken } = user;
-    const action = (userType === "Realtor" ? "propose" : "accept");
-  
+    const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
+
+    const adminToken = "Bearer " + process.env.REACT_APP_TOKEN_OLIVIA;
+
+    const actions = "";
     const [rows, setRows] = useState([]);
-    const [isArchived, setIsArchived] = useState(false);
-    const [isAccepted, setIsAccepted] = useState(false);
+
+    const [isListingApproved, setIsListingApproved] = useState(false);
+
+    const admin = "Olivia";
 
     // Uses REST API to get all active contracts matching a given query.
     //   Fetches all agency-related contracts.
     const getMatchingContracts = async () => {
+        console.log(adminToken);
         try {
             const response = await axios({
                 method: "post",
@@ -35,42 +43,42 @@ const MyRealtors = (props) => {
                 withCredentials: true,     
                 headers:
                     {
-                        "Authorization": userToken,
+                        "Authorization": adminToken,
                         "Content-Type": "application/json",
                     },
                 data:
                     {
                         "templateIds":
                             [
-                                "Main:BuyerAgencyProposal",
-                                "Main:BuyerAgencyCreated",
-                                "Main:SellerAgencyProposal",
-                                "Main:SellerAgencyCreated"
+                                "Main:ApprovedListing"
                             ],
                         "query":
                             {
-                                "party": username
+
                             }
                     },     
             });
             const obj = response.data.result
 
             if (obj.length > 0) {
+
                 const ids = obj.map(id => id.contractId);
-                const matchingNames = obj.map(matchingName => matchingName.payload.party);
-                const types = obj.map(type => type.payload.templateType);
-                const addresses = obj.map(address => address.payload.propertyAddress);
+                const thumbnails = obj.map(thumbnail => thumbnail.payload.property.thumnbail);
+                const sellerAgents = obj.map(sellerAgent => sellerAgent.payload.sellerAgent);
+                const streetAddresses = obj.map(streetAddress => streetAddress.payload.property.streetAddress);
+                const listPrices = obj.map(listPrice => listPrice.payload.listPrice);
                 const approvals = obj.map(type => type.payload.isApproved);
                 
                 let tempRows = []
-                for (let i = 0; i < matchingNames.length; i++) {
+                for (let i = 0; i < ids.length; i++) {
+                    const thumbnail = thumbnails[i];
                     const contractId = ids[i];
-                    const contactName = matchingNames[i];
-                    const contactRole = (types[i] === "BUYER_AGENCY" ? "buyer" : "seller");
-                    const streetAddress = addresses[i];
-                    const agencyStatus = (approvals[i] === true ? "active" : "pending");
+                    const sellerAgent = (sellerAgents[i]);
+                    const streetAddress = streetAddresses[i];
+                    const listPrice = listPrices[i];
+                    const listingStatus = (approvals[i] === true ? "active" : "in review");
 
-                    tempRows.push({contractId, contactName, contactRole, streetAddress, agencyStatus, action});
+                    tempRows.push({thumbnail, contractId, sellerAgent, streetAddress, listPrice, listingStatus});
                 }
                 setRows(tempRows);
             } else {
@@ -83,10 +91,10 @@ const MyRealtors = (props) => {
 
     useEffect(() => {
         getMatchingContracts();
-    }, [isAgencyUpdated, isArchived, isAccepted]);
-    
+    }, [isListingsUpdated, isListingApproved]);
 
-    const acceptAgencyProposal = async (templateId, contractId, choice) => {
+
+    const approveListing = async (contractId) => {
         try {
             await axios({
                 method: "post",
@@ -94,65 +102,24 @@ const MyRealtors = (props) => {
                 withCredentials: true,
                 headers:
                     {
-                        "Authorization": userToken,
+                        "Authorization": adminToken,
                         "Content-Type": "application/json",
                     },
                 data:
                     {
-                        "templateId": templateId,
+                        "templateId": "Main:PreparedListing",
                         "contractId": contractId,
-                        "choice": choice,
-                        "argument": {},
+                        "choice": "ApproveListing",
+                        "argument": {
+                            "admin": admin
+                        },
                     }
             });
-            setIsAccepted(!isAccepted);
+            setIsListingApproved(!isListingApproved);
         } catch (err) {
             console.log(err);
         }
     }
-
-    const archiveAgencyProposal = async (templateId, contractId, choice) => {
-        console.log(templateId, contractId, choice);
-        try {
-            await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": userToken,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": templateId,
-                        "contractId": contractId,
-                        "choice": choice,
-                        "argument": {},
-                    }
-            });
-            console.log("isArchived = ", isArchived);
-            setIsArchived(!isArchived);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
-    const handleAcceptAgency = (contractId, contactRole) => {
-        if (contactRole === "buyer") {
-            acceptAgencyProposal("Main:BuyerAgencyProposal", contractId, "AcceptBuyerAgency");
-        } else {
-            acceptAgencyProposal("Main:SellerAgencyProposal", contractId,"AcceptSellerAgency");
-        }
-    };
-
-    const handleArchiveAgency = (contractId, contactRole) => {
-        if (contactRole === "buyer") {
-            archiveAgencyProposal("Main:BuyerAgencyProposal", contractId, "RejectBuyerAgency");
-        } else {
-            archiveAgencyProposal("Main:SellerAgencyProposal", contractId,"RejectSellerAgency");
-        }
-    };
 
 
     return (
@@ -176,11 +143,12 @@ const MyRealtors = (props) => {
                         aria-label="simple table">
                         <TableHead>
                         <TableRow>
-                            <TableCell>Agency Contract ID</TableCell>
-                            <TableCell align="right">Name</TableCell>
-                            <TableCell align="right">Role</TableCell>
-                            <TableCell align="right">Property</TableCell>
-                            <TableCell align="right">Agency Status</TableCell>
+                            <TableCell>Listing Contract ID</TableCell>
+                            <TableCell align="right">Thumbnail</TableCell>
+                            <TableCell align="right">Listing Agent</TableCell>
+                            <TableCell align="right">Street Address</TableCell>
+                            <TableCell align="right">List Price</TableCell>
+                            <TableCell align="right">Listing Status</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                         </TableHead>
@@ -193,34 +161,28 @@ const MyRealtors = (props) => {
                                 <TableCell component="th" scope="row">
                                     {row.contractId}
                                 </TableCell>
-                                <TableCell align="right">{row.contactName}</TableCell>
-                                <TableCell align="right">{row.contactRole}</TableCell>
+                                <TableCell align="right">{row.thumbnail}</TableCell>
+                                <TableCell align="right">{row.sellerAgent}</TableCell>
                                 <TableCell align="right">{row.streetAddress}</TableCell>
-                                <TableCell align="right">{row.agencyStatus}</TableCell>
+                                <TableCell align="right">{row.listPrice}</TableCell>
+                                <TableCell align="right">{row.listingStatus}</TableCell>
                                 <TableCell align="right">
                                 <ButtonGroup variant="contained">
                                     <IconButton
-                                        disabled={row.agencyStatus !== "pending"}
+                                        disabled={row.listingStatus !== "in review"}
                                         color="primary"
-                                        onClick={() => handleAcceptAgency(row.contractId, row.contactRole)}
+                                        onClick={() => approveListing(row.contractId)}
                                     >
                                         <CheckBoxIcon
                                             sx={{
                                             fontSize: 23, 
                                             }}
-                                    />
-                                    </IconButton>
-                                    <IconButton
-                                        disabled={row.agencyStatus === "active"}
-                                        color="primary"
-                                        onClick={() => handleArchiveAgency(row.contractId, row.contactRole)}
-                                    >
-                                        <DeleteIcon
-                                            sx={{
-                                            fontSize: 23, 
-                                            }}
                                         />
                                     </IconButton>
+
+                                    {/*}
+                                    <AddListingDialog user={user} isOpen={{open, setOpen}} updateComponent={{isListingsUpdated, setIsListingsUpdated}} />
+                                    */}
                                 </ButtonGroup>
                                 </TableCell>
                             </TableRow>
@@ -233,4 +195,4 @@ const MyRealtors = (props) => {
     )
 }
 
-export default MyRealtors;
+export default AllPublicListings;

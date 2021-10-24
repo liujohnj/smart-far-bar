@@ -17,13 +17,14 @@ const axios = require('axios');
 
 const MyClients = (props) => {
     const user = props.user;
-    //const isAgencyUpdated = props.isAgencyUpdated;
     const { isAgencyUpdated } = props.updateComponent;
+    const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
 
     const { username, userType, userToken } = user;
     const actions = "";
     const [rows, setRows] = useState([]);
     const [isArchived, setIsArchived] = useState(false);
+   
 
     const [open, setOpen] = useState(false);
 
@@ -56,7 +57,6 @@ const MyClients = (props) => {
                     },     
             });
             const obj = response.data.result
-            console.log("object: ", obj);
 
             if (obj.length > 0) {
                 const ids = obj.map(id => id.contractId);
@@ -85,7 +85,6 @@ const MyClients = (props) => {
     }
 
     useEffect(() => {
-        console.log("getting");
         getMatchingContracts();
     }, [isAgencyUpdated, isArchived]);
     
@@ -184,7 +183,7 @@ const MyClients = (props) => {
                                         />
                                     </IconButton>
 
-                                    <AddListingDialog user={user} isOpen={{open, setOpen}} />
+                                    <AddListingDialog user={user} isOpen={{open, setOpen}} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
                                     
                                     <IconButton
                                         disabled={row.agencyStatus === "active"}

@@ -15,6 +15,8 @@ const axios = require('axios');
 const AddListingDialog = (props) => {
     const user = props.user;
     const { open, setOpen } = props.isOpen;
+    const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
+   
 
     //const { isAgencyUpdated, setIsAgencyUpdated } = useState(false);
 
@@ -124,8 +126,8 @@ const AddListingDialog = (props) => {
             setName("");
             setIsBuyer(true);
             setPropertyAddress("");
-            setIsAgencyUpdated(!isAgencyUpdated); // toggle to re-render sibling component
             */
+            setIsListingsUpdated(!isListingsUpdated); // toggle to re-render parent component
         } catch (err) {
             console.log(err);
         }

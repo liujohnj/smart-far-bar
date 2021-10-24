@@ -4,11 +4,13 @@ import { Box } from "@mui/system";
 import AddClientDialog from "./AddClientDialog";
 import MyClients from "./MyClients";
 import MyListings from './MyListings';
+import AllPublicListings from './AllPublicListings';
 
 const AgentDashboard = (props) => {
     const user = props.user;
 
     const [isAgencyUpdated, setIsAgencyUpdated] = useState(false);
+    const [isListingsUpdated, setIsListingsUpdated] = useState(false);
 
     return (
         <div>
@@ -37,7 +39,7 @@ const AgentDashboard = (props) => {
                 </Box>
             </Box>
             <Box>
-                <MyClients user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} } />
+                <MyClients user={user} updateComponent={{isAgencyUpdated, setIsAgencyUpdated}} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
             </Box>
 
             <Box
@@ -50,9 +52,21 @@ const AgentDashboard = (props) => {
                 <Typography variant="subtitle1" sx={{ml:2, mb:1}} >
                     My Listings
                 </Typography>
-                <MyListings user={user}/>
+                <MyListings user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
             </Box>
             
+            <Box
+                sx={{
+                    ml: 0,
+                    mr: 0,
+                    mt: 3,
+                }}
+            >
+                <Typography variant="subtitle1" sx={{ml:2, mb:1}} >
+                    All Public Listings
+                </Typography>
+                <AllPublicListings user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
+            </Box>
         </div>
     )
 }

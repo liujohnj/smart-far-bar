@@ -18,12 +18,11 @@ const axios = require('axios');
 
 const MyListings = (props) => {
     const user = props.user;
-    //const { isAgencyUpdated } = props.updateComponent;
+    const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
 
     const { username, userType, userToken } = user;
     const actions = "";
     const [rows, setRows] = useState([]);
-    const [isArchived, setIsArchived] = useState(false);
 
     const [open, setOpen] = useState(false);
 
@@ -86,42 +85,8 @@ const MyListings = (props) => {
 
     useEffect(() => {
         getMatchingContracts();
-    //}, [isAgencyUpdated, isArchived]);
-    }, []);
+    }, [isListingsUpdated]);
 
-    const archiveAgencyProposal = async (templateId, contractId, choice) => {
-        try {
-            await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": userToken,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": templateId,
-                        "contractId": contractId,
-                        "choice": choice,
-                        "argument": {},
-                    }
-            });
-            console.log("isArchived = ", isArchived);
-            setIsArchived(!isArchived);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
-    const handleArchiveAgency = (contractId, contactRole) => {
-        if (contactRole === "buyer") {
-            archiveAgencyProposal("Main:BuyerAgencyProposal", contractId, "WithdrawBuyerAgency");
-        } else {
-            archiveAgencyProposal("Main:SellerAgencyProposal", contractId,"WithdrawSellerAgency");
-        }
-    };
 
     const handleEditListing = (contractId) => {
         setOpen(true);
@@ -184,8 +149,9 @@ const MyListings = (props) => {
                                         />
                                     </IconButton>
 
-                                    <AddListingDialog user={user} isOpen={{open, setOpen}} />
-                                    
+                                    {/*}
+                                    <AddListingDialog user={user} isOpen={{open, setOpen}} updateComponent={{isListingsUpdated, setIsListingsUpdated}} />
+                                    */}
                                 </ButtonGroup>
                                 </TableCell>
                             </TableRow>

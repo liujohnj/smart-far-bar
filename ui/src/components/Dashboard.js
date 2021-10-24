@@ -8,7 +8,7 @@ import ClientDashboard from './ClientDashboard';
 
 const Dashboard = () => {
     const location = useLocation();
-    const username = location.state.username
+    const username = location.state.name
 
     // Back-end server substitute for demo purposes
     const userType = returnUserType(username);

@@ -15,7 +15,14 @@ const Login = () => {
     const [username, setUsername] = useState('');
    
     const handleChange = (event) => {
-        setUsername(event.target.value);
+        const name = event.target.value
+        setUsername(name);
+
+        localStorage.setItem('user', name);
+        history.push({
+            pathname: '/dashboard',
+            state: { name }
+        });
       };
 
     const history = useHistory();
@@ -83,7 +90,7 @@ const Login = () => {
                                             Carol (Buyer's Agent)
                                         </MenuItem>
                                         <MenuItem value='David'>
-                                            Alice (Seller's Agent)
+                                            David (Seller's Agent)
                                         </MenuItem>
                                     </Select>
                                 </Box>
