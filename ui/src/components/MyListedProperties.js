@@ -131,7 +131,7 @@ const MyListedProperties = (props) => {
                         aria-label="simple table">
                         <TableHead>
                         <TableRow>
-                            <TableCell>Listing Contract ID</TableCell>
+                            <TableCell>ID</TableCell>
                             <TableCell align="right">Thumbnail</TableCell>
                             <TableCell align="right">Seller</TableCell>
                             <TableCell align="right">Street Address</TableCell>

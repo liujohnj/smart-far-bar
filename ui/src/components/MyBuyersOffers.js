@@ -14,7 +14,7 @@ import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import { Tooltip } from '@mui/material';
 const axios = require('axios');
 
-const SellersOffers = (props) => {
+const MyBuyersOffers = (props) => {
     const user = props.user;
     const { username, userToken } = user;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
@@ -52,9 +52,7 @@ const SellersOffers = (props) => {
                             ],
                         "query":
                             {
-                                "parties": {
-                                    "seller": username
-                                }
+                                "buyerAgent": username,
                             }
                     },     
             });
@@ -63,7 +61,7 @@ const SellersOffers = (props) => {
             if (obj.length > 0) {
 
                 const ids = obj.map(id => id.contractId);
-                const sellerAgents = obj.map(sellerAgent => sellerAgent.payload.sellerAgent);
+                const clients = obj.map(client => client.payload.parties.seller);
                 const streetAddresses = obj.map(streetAddress => streetAddress.payload.property.streetAddress);
                 const offeredPrices = obj.map(offeredPrice => offeredPrice.payload.terms.purchasePrice)
                 const offerers = obj.map(offerer => offerer.payload.parties.buyer);
@@ -75,7 +73,7 @@ const SellersOffers = (props) => {
                 let tempRows = []
                 for (let i = 0; i < ids.length; i++) {
                     const contractId = ids[i];
-                    const sellerAgent = sellerAgents[i];
+                    const client = clients[i];
                     const streetAddress = streetAddresses[i];
                     const offeredPrice = offeredPrices[i];
                     const offerer = offerers[i];
@@ -93,14 +91,10 @@ const SellersOffers = (props) => {
                         status = "counter pending";
                     } else if (template === "OFFER") {
                         status = "received";
-                    } else if (template === "COUNTEROFFER" && approval === false) {
-                        status = "pending signoff";
-                    } else if (template === "COUNTEROFFER" && approval === true) {
-                        status = "tendered";
                     }
                     
                     
-                    tempRows.push({contractId, sellerAgent, streetAddress, offeredPrice, offerer, template, status});
+                    tempRows.push({contractId, client, streetAddress, offeredPrice, offerer, template, status});
                 }
                 setRows(tempRows);
             } else {
@@ -111,39 +105,12 @@ const SellersOffers = (props) => {
         }
     }
 
-    const archiveTenderedOffer = async (contractId) => {
-        try {
-            await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": userToken,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": "Main:TenderedOffer",
-                        "contractId": contractId,
-                        "choice": "ArchiveTenderedOffer",
-                        "argument": {
-
-                        },
-                    }
-            });
-            //setIsListingApproved(!isListingApproved);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-
     useEffect(() => {
         getSellersOffers();
     }, [isListingsUpdated, isListingApproved]);
 
 
-    const approvePreparedCounteroffer = async (contractId) => {
+    const handleApproveOffer = async (contractId) => {
         try {
             await axios({
                 method: "post",
@@ -156,9 +123,9 @@ const SellersOffers = (props) => {
                     },
                 data:
                     {
-                        "templateId": "Main:PreparedCounteroffer",
+                        "templateId": "Main:PreparedOffer",
                         "contractId": contractId,
-                        "choice": "ApproveCounteroffer",
+                        "choice": "ApproveOffer",
                         "argument": {
 
                         },
@@ -191,7 +158,6 @@ const SellersOffers = (props) => {
                         },
                     }
             });
-            archiveTenderedOffer(contractId);
             //setIsListingApproved(!isListingApproved);
         } catch (err) {
             console.log(err);
@@ -262,11 +228,15 @@ const SellersOffers = (props) => {
         rejectOffer(contractId);
     };
 
+    const approvePreparedCounteroffer = async (contractId) => {
+
+    };
+
     const handleApproveOrAccept = (templateType, status, contractId) => {
         if (templateType === "OFFER") {
             acceptOffer(contractId);
         }
-        else if (templateType === "COUNTEROFFER" && status === "pending signoff") {
+        else if (templateType === "COUNTEROFFER" && status === "in review") {
             approvePreparedCounteroffer(contractId);
         }
     }
@@ -292,7 +262,7 @@ const SellersOffers = (props) => {
                         <TableHead>
                         <TableRow>
                             <TableCell>ID</TableCell>
-                            <TableCell align="right">Seller Agent</TableCell>
+                            <TableCell align="right">Seller</TableCell>
                             <TableCell align="right">Property Address</TableCell>
                             <TableCell align="right">Purchase Price</TableCell>
                             <TableCell align="right">Buyer</TableCell>
@@ -310,7 +280,7 @@ const SellersOffers = (props) => {
                                 <TableCell component="th" scope="row">
                                     {row.contractId}
                                 </TableCell>
-                                <TableCell align="right">{row.sellerAgent}</TableCell>
+                                <TableCell align="right">{row.client}</TableCell>
                                 <TableCell align="right">{row.streetAddress}</TableCell>
                                 <TableCell align="right">{row.offeredPrice}</TableCell>
                                 <TableCell align="right">{row.offerer}</TableCell>
@@ -321,9 +291,7 @@ const SellersOffers = (props) => {
                                     <Tooltip title="Approve/Accept">
                                         <IconButton
                                             disabled={
-                                                row.status === "executed" ||
-                                                row.status === "rejected" ||
-                                                row.status === "counter pending"
+                                                true
                                             }
                                             color="primary"
                                             onClick={() => handleApproveOrAccept(row.template, row.status, row.contractId)}
@@ -335,13 +303,10 @@ const SellersOffers = (props) => {
                                             />
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip title="Counteroffer">
+                                    <Tooltip title="Prepare counteroffer">
                                         <IconButton
                                             disabled={
-                                                row.status === "executed" ||
-                                                row.status === "rejected" ||
-                                                row.status === "counter pending" ||
-                                                row.status === "pending signoff"
+                                                true
                                             }
                                             color="primary"
                                             onClick={() => handleCounteroffer(row.contractId)}
@@ -357,10 +322,7 @@ const SellersOffers = (props) => {
                                     <Tooltip title="Reject">
                                         <IconButton
                                             disabled={
-                                                row.status === "executed" ||
-                                                row.status === "rejected" ||
-                                                row.status === "counter pending" ||
-                                                row.status === "pending signoff"
+                                                true
                                             }
                                             color="primary"
                                             onClick={() => handleRejectOffer(row.contractId)}
@@ -385,4 +347,4 @@ const SellersOffers = (props) => {
     )
 }
 
-export default SellersOffers;
+export default MyBuyersOffers;

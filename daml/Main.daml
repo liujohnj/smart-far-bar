@@ -291,6 +291,8 @@ template ExecutedContract
         signatory parties.seller, parties.buyer
         observer sellerAgent, buyerAgent, admin--, escrowAgentName
 
+-- To be newly created by sellerAgent to maintain visibility between
+--  only sellerAgent and seller
 template PreparedCounteroffer
     with
         parties : Parties
@@ -333,7 +335,7 @@ template TenderedCounteroffer
         isRejected : Bool
     where
         signatory parties.seller
-        observer buyerAgent
+        observer buyerAgent, sellerAgent
 
         controller parties.buyer can
                 AcceptCounteroffer : ContractId ExecutedContract
@@ -366,100 +368,7 @@ template TenderedCounteroffer
 
                 ArchiveTenderedCounteroffer : ()
                     do return ()
-{-
-        controller parties.seller can
-                IndicateCounterToCounteroffer : ContractId TenderedCounteroffer
-                    do
-                        create this with
-                            isCountered = True
-                            templateType = "COUNTEROFFER"
--}
-{-
-                PrepareCounterToCounteroffer : ContractId PreparedCounterToCounteroffer
-                    with
-                        counteredTerms : Terms
-                    do
-                        create PreparedCounterToCounteroffer with
-                            parties
-                            property
-                            escrowAgent
-                            terms = counteredTerms
-                            sellerAgent
-                            buyerAgent
-                            templateType = "COUNTEROFFER"
-                            isApproved = False
 
-template PreparedCounterToCounteroffer
-    with
-        parties : Parties
-        property : Property
-        escrowAgent : EscrowAgent
-        terms : Terms
-        sellerAgent : Party
-        buyerAgent : Party
-        templateType : Text
-        isApproved : Bool
-    where
-        signatory buyerAgent                         
-
-        controller parties.buyer can
-            ApproveCounterToCounteroffer: ContractId TenderedCounterToCounteroffer
-                do
-                    create TenderedCounterToCounteroffer with
-                        parties
-                        property
-                        escrowAgent
-                        terms
-                        sellerAgent
-                        buyerAgent
-                        templateType = "OFFER"
-                        isApproved = True
-                        isCountered = False
-                        isRejected = False
-
-template TenderedCounterToCounteroffer
-    with
-        parties : Parties
-        property : Property
-        escrowAgent : EscrowAgent
-        terms : Terms
-        sellerAgent : Party
-        buyerAgent : Party
-        templateType : Text
-        isApproved : Bool
-        isCountered : Bool
-        isRejected : Bool
-    where
-        signatory parties.buyer
-        observer sellerAgent, buyerAgent
-    
-        controller parties.seller can
-            AcceptCounterToCounteroffer : ContractId ExecutedContract
-                with
-                    escrowAgentName : Party
-                    admin : Party
-                do
-                    create ExecutedContract with
-                        parties
-                        property
-                        escrowAgent
-                        terms
-                        sellerAgent
-                        buyerAgent
-                        escrowAgentName
-                        templateType = "CONTRACT"
-                        admin
-
-            RejectCounterToCounteroffer : ContractId TenderedCounterToCounteroffer
-                do
-                    create this with
-                        isRejected = True
-            
-            IndicateCounterToCounterToCounteroffer : ContractId TenderedCounterToCounteroffer
-                do
-                    create this with
-                        isCountered = True
--}
 
 setup = script do
     alice <- allocateParty "Alice"  -- seller

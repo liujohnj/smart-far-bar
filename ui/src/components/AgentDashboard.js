@@ -5,6 +5,8 @@ import AddClientDialog from "./AddClientDialog";
 import MyClients from "./MyClients";
 import MyListings from './MyListings';
 import AllPublicListings from './AllPublicListings';
+import MySellersOffers from './MySellersOffers';
+import MyBuyersOffers from './MyBuyersOffers';
 
 const AgentDashboard = (props) => {
     const user = props.user;
@@ -68,6 +70,32 @@ const AgentDashboard = (props) => {
                     All Public Listings
                 </Typography>
                 <AllPublicListings user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} />
+            </Box>
+
+            <Box
+                sx={{
+                    ml: 0,
+                    mr: 0,
+                    mt: 3,
+                }}
+            >
+                <Typography variant="subtitle1" sx={{ml:2, mb:1}} >
+                    My Sellers' Offers
+                </Typography>
+                <MySellersOffers user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} />
+            </Box>
+
+            <Box
+                sx={{
+                    ml: 0,
+                    mr: 0,
+                    mt: 3,
+                }}
+            >
+                <Typography variant="subtitle1" sx={{ml:2, mb:1}} >
+                    My Buyers' Offers
+                </Typography>
+                <MyBuyersOffers user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} />
             </Box>
         </div>
     )

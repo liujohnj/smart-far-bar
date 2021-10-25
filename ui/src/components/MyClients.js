@@ -146,7 +146,7 @@ const MyClients = (props) => {
                         aria-label="simple table">
                         <TableHead>
                         <TableRow>
-                            <TableCell>Agency Contract ID</TableCell>
+                            <TableCell>ID</TableCell>
                             <TableCell align="right">Name</TableCell>
                             <TableCell align="right">Role</TableCell>
                             <TableCell align="right">Property</TableCell>

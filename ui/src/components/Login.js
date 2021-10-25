@@ -6,8 +6,6 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import IconButton from '@mui/material/IconButton';
-import LoginIcon from '@mui/icons-material/Login';
 import ButtonAppBar from './ButtonAppBar';
 
 const Login = () => {
@@ -93,16 +91,6 @@ const Login = () => {
                                             David (Seller's Agent)
                                         </MenuItem>
                                     </Select>
-                                </Box>
-
-                                <Box>
-                                    <IconButton color="primary" type="submit">
-                                        <LoginIcon
-                                            sx={{
-                                                fontSize: 45,
-                                            }}
-                                        />
-                                    </IconButton>           
                                 </Box>
                             </Box>
                         </FormControl>

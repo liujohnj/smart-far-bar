@@ -66,8 +66,10 @@ const BuyersOffers = (props) => {
                 const streetAddresses = obj.map(streetAddress => streetAddress.payload.property.streetAddress);
                 const offeredPrices = obj.map(offeredPrice => offeredPrice.payload.terms.purchasePrice)
                 const types = obj.map(type => type.payload.templateType);
-                const approvals = obj.map(type => type.payload.isApproved);
-                
+                const approvals = obj.map(approval => approval.payload.isApproved);
+                const rejections = obj.map(rejection => rejection.payload.isRejected);
+                const counters = obj.map(counter => counter.payload.isCountered);
+
                 let tempRows = []
                 for (let i = 0; i < ids.length; i++) {
                     const contractId = ids[i];
@@ -75,9 +77,27 @@ const BuyersOffers = (props) => {
                     const streetAddress = streetAddresses[i];
                     const offeredPrice = offeredPrices[i];
                     const template = types[i];
-                    const listingStatus = (approvals[i] === true ? "active" : "in review");
+                    const approval = approvals[i];
+                    const counter = counters[i];
+                    const rejection = rejections[i];
+                    
+                    let status = "";
+                    if (template === "OFFER" && approval === false) {
+                        status = "pending draft"
+                    } else if (template === "OFFER" && rejection === true) {
+                        status = "rejected";
+                    } else if (template === "OFFER" && counter === true) {
+                        status = "counter pending";
+                    } else if (template === "OFFER" && approval === true) {
+                        status = "tendered"
+                    } else if (template === "CONTRACT") {
+                        status = "executed"
+                    } else if (template === "COUNTEROFFER") {
+                        status = "received";
+                    }
+                    
 
-                    tempRows.push({contractId, buyerAgent, streetAddress, offeredPrice, template, listingStatus});
+                    tempRows.push({contractId, buyerAgent, streetAddress, offeredPrice, template, status});
                 }
                 setRows(tempRows);
             } else {
@@ -93,7 +113,7 @@ const BuyersOffers = (props) => {
     }, [isListingsUpdated, isListingApproved]);
 
 
-    const handleApproveOffer = async (contractId) => {
+    const approvePreparedOffer = async (contractId) => {
         try {
             await axios({
                 method: "post",
@@ -119,8 +139,89 @@ const BuyersOffers = (props) => {
             console.log(err);
         }
     }
-    /*
-    const handleIndicateCounteroffer = async (contractId) => {
+
+    const acceptCounteroffer = async (contractId) => {
+        try {
+            await axios({
+                method: "post",
+                url: '/v1/exercise',
+                withCredentials: true,
+                headers:
+                    {
+                        "Authorization": userToken,
+                        "Content-Type": "application/json",
+                    },
+                data:
+                    {
+                        "templateId": "Main:TenderedCounteroffer",
+                        "contractId": contractId,
+                        "choice": "AcceptCounteroffer",
+                        "argument": {
+                            "admin": "Olivia"
+                        },
+                    }
+            });
+            //setIsListingApproved(!isListingApproved);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    const rejectCounteroffer = async (contractId) => {
+        try {
+            await axios({
+                method: "post",
+                url: '/v1/exercise',
+                withCredentials: true,
+                headers:
+                    {
+                        "Authorization": userToken,
+                        "Content-Type": "application/json",
+                    },
+                data:
+                    {
+                        "templateId": "Main:TenderedCounteroffer",
+                        "contractId": contractId,
+                        "choice": "RejectCounteroffer",
+                        "argument": {
+                            "isRejected": true,
+                            "templateType": "COUNTEROFFER"
+                        },
+                    }
+            });
+            //setIsListingApproved(!isListingApproved);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    const archiveTenderedCounteroffer = async (contractId) => {
+        try {
+            await axios({
+                method: "post",
+                url: '/v1/exercise',
+                withCredentials: true,
+                headers:
+                    {
+                        "Authorization": userToken,
+                        "Content-Type": "application/json",
+                    },
+                data:
+                    {
+                        "templateId": "Main:TenderedCounteroffer",
+                        "contractId": contractId,
+                        "choice": "ArchiveTenderedCounteroffer",
+                        "argument": {
+                           
+                        },
+                    }
+            });
+            //setIsListingApproved(!isListingApproved);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    const indicateCounterToCounteroffer = async (contractId) => {
         try {
             await axios({
                 method: "post",
@@ -135,18 +236,39 @@ const BuyersOffers = (props) => {
                     {
                         "templateId": "Main:PreparedOffer",
                         "contractId": contractId,
-                        "choice": "ApproveOffer",
+                        "choice": "IndicateCounterToCounteroffer",
                         "argument": {
-
+                            "isCountered": true,
+                            "templateType": "COUNTEROFFER"
                         },
                     }
             });
+            archiveTenderedCounteroffer(contractId);
             //setIsListingApproved(!isListingApproved);
         } catch (err) {
             console.log(err);
         }
     }
-    */
+
+
+    const handleCounter = (contractId) => {
+        indicateCounterToCounteroffer(contractId);
+    }
+
+    const handleReject = (contractId) => {
+        rejectCounteroffer(contractId);
+    }
+
+    const handleApproveOrAccept = (templateType, status, contractId) => {
+        if (status === "pending signoff") {
+            approvePreparedOffer(contractId);
+        }
+        else if (templateType === "COUNTEROFFER" && status === "received") {
+            acceptCounteroffer(contractId);
+        }
+    }
+
+
     return (
         <div>
             <Box
@@ -168,12 +290,13 @@ const BuyersOffers = (props) => {
                         aria-label="simple table">
                         <TableHead>
                         <TableRow>
-                            <TableCell>Listing Contract ID</TableCell>
+                            <TableCell>ID</TableCell>
                             <TableCell align="right">Buyer Agent</TableCell>
                             <TableCell align="right">Property Address</TableCell>
                             <TableCell align="right">Offer Price</TableCell>
                             <TableCell align="right">Type</TableCell>
-                            <TableCell align="right">Listing Status</TableCell>
+                            <TableCell align="right">Status</TableCell>
+                            <TableCell align="right">Actions</TableCell>
                         </TableRow>
                         </TableHead>
                         <TableBody>
@@ -189,13 +312,18 @@ const BuyersOffers = (props) => {
                                 <TableCell align="right">{row.streetAddress}</TableCell>
                                 <TableCell align="right">{row.offeredPrice}</TableCell>
                                 <TableCell align="right">{row.template}</TableCell>
-                                <TableCell align="right">{row.listingStatus}</TableCell>
+                                <TableCell align="right">{row.status}</TableCell>
                                 <TableCell align="right">
                                 <ButtonGroup variant="contained">
                                     <IconButton
-                                        disabled={row.listingStatus === "dunno"}
+                                        disabled={
+                                            row.status === "executed" ||
+                                            row.status === "tendered" ||
+                                            row.status === "rejected" ||
+                                            row.status === "counter pending"
+                                        }
                                         color="primary"
-                                        onClick={() => handleApproveOffer(row.contractId)}
+                                        onClick={() => handleApproveOrAccept(row.template, row.status, row.contractId)}
                                     >
                                         <CheckBoxIcon
                                             sx={{
@@ -204,9 +332,15 @@ const BuyersOffers = (props) => {
                                         />
                                     </IconButton>
                                     <IconButton
-                                        disabled={row.listingStatus === "dunno"}
+                                        disabled={
+                                            row.status === "executed" ||
+                                            row.status === "pending draft" ||
+                                            row.status === "tendered" ||
+                                            row.status === "rejected" ||
+                                            row.status === "counter pending"
+                                        }
                                         color="primary"
-                                        onClick={() => handleApproveOffer(row.contractId)}
+                                        onClick={() => handleCounter(row.contractId)}
                                     >
                                         <AssignmentReturnIcon
                                             sx={{
@@ -215,9 +349,15 @@ const BuyersOffers = (props) => {
                                         />
                                     </IconButton>
                                     <IconButton
-                                        disabled={row.listingStatus === "dunno"}
+                                        disabled={
+                                            row.status === "executed" ||
+                                            row.status === "pending draft" ||
+                                            row.status === "tendered" ||
+                                            row.status === "rejected" ||
+                                            row.status === "counter pending"
+                                        }
                                         color="primary"
-                                        onClick={() => handleApproveOffer(row.contractId)}
+                                        onClick={() => handleReject(row.contractId)}
                                     >
                                         <CancelIcon
                                             sx={{
