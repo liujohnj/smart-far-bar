@@ -92,8 +92,10 @@ const MySellersOffers = (props) => {
                         status = "received";
                     } else if (template === "COUNTEROFFER" && approval === false) {
                         status = "pending signoff";
-                    } else if (template === "COUNTEROFFER" && approval === true) {
+                    } else if (template === "COUNTEROFFER" && approval === true && counter === false) {
                         status = "tendered";
+                    } else if (template === "COUNTEROFFER" && approval === true && counter === true) {
+                        status = "offer pending";
                     }
                     
                     

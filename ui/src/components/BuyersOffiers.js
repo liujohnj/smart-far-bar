@@ -83,7 +83,7 @@ const BuyersOffers = (props) => {
                     
                     let status = "";
                     if (template === "OFFER" && approval === false) {
-                        status = "pending draft"
+                        status = "pending signoff"
                     } else if (template === "OFFER" && rejection === true) {
                         status = "rejected";
                     } else if (template === "OFFER" && counter === true) {
@@ -92,8 +92,10 @@ const BuyersOffers = (props) => {
                         status = "tendered"
                     } else if (template === "CONTRACT") {
                         status = "executed"
-                    } else if (template === "COUNTEROFFER") {
+                    } else if (template === "COUNTEROFFER" && counter === false) {
                         status = "received";
+                    } else if (template === "COUNTEROFFER" && counter === true) {
+                        status = "offer pending";
                     }
                     
 
@@ -114,6 +116,7 @@ const BuyersOffers = (props) => {
 
 
     const approvePreparedOffer = async (contractId) => {
+        const previousBuyerContractId = localStorage.getItem('previousBuyerContractId');
         try {
             await axios({
                 method: "post",
@@ -134,6 +137,7 @@ const BuyersOffers = (props) => {
                         },
                     }
             });
+            archiveTenderedCounteroffer(previousBuyerContractId);
             //setIsListingApproved(!isListingApproved);
         } catch (err) {
             console.log(err);
@@ -223,7 +227,7 @@ const BuyersOffers = (props) => {
 
     const indicateCounterToCounteroffer = async (contractId) => {
         try {
-            await axios({
+            const response = await axios({
                 method: "post",
                 url: '/v1/exercise',
                 withCredentials: true,
@@ -234,7 +238,7 @@ const BuyersOffers = (props) => {
                     },
                 data:
                     {
-                        "templateId": "Main:PreparedOffer",
+                        "templateId": "Main:TenderedCounteroffer",
                         "contractId": contractId,
                         "choice": "IndicateCounterToCounteroffer",
                         "argument": {
@@ -243,7 +247,11 @@ const BuyersOffers = (props) => {
                         },
                     }
             });
-            archiveTenderedCounteroffer(contractId);
+            const obj = response.data.result;
+            console.log(obj);
+            const newContractId = obj.exerciseResult;
+            console.log(newContractId);
+            localStorage.setItem('previousBuyerContractId', newContractId);
             //setIsListingApproved(!isListingApproved);
         } catch (err) {
             console.log(err);
@@ -320,7 +328,8 @@ const BuyersOffers = (props) => {
                                             row.status === "executed" ||
                                             row.status === "tendered" ||
                                             row.status === "rejected" ||
-                                            row.status === "counter pending"
+                                            row.status === "counter pending" ||
+                                            row.status === "offer pending"
                                         }
                                         color="primary"
                                         onClick={() => handleApproveOrAccept(row.template, row.status, row.contractId)}
@@ -334,10 +343,11 @@ const BuyersOffers = (props) => {
                                     <IconButton
                                         disabled={
                                             row.status === "executed" ||
-                                            row.status === "pending draft" ||
+                                            row.status === "pending signoff" ||
                                             row.status === "tendered" ||
                                             row.status === "rejected" ||
-                                            row.status === "counter pending"
+                                            row.status === "counter pending" ||
+                                            row.status === "offer pending"
                                         }
                                         color="primary"
                                         onClick={() => handleCounter(row.contractId)}
@@ -351,10 +361,11 @@ const BuyersOffers = (props) => {
                                     <IconButton
                                         disabled={
                                             row.status === "executed" ||
-                                            row.status === "pending draft" ||
+                                            row.status === "pending signoff" ||
                                             row.status === "tendered" ||
                                             row.status === "rejected" ||
-                                            row.status === "counter pending"
+                                            row.status === "counter pending" ||
+                                            row.status === "offer pending"
                                         }
                                         color="primary"
                                         onClick={() => handleReject(row.contractId)}

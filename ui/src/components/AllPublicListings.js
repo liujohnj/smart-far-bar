@@ -68,7 +68,7 @@ const AllPublicListings = (props) => {
                     const sellerAgent = (sellerAgents[i]);
                     const streetAddress = streetAddresses[i];
                     const listPrice = listPrices[i];
-                    const listingStatus = (approvals[i] === true ? "active" : "in review");
+                    const listingStatus = (approvals[i] === true ? "active" : "pending signoff");
 
                     tempRows.push({thumbnail, contractId, sellerAgent, streetAddress, listPrice, listingStatus});
                 }

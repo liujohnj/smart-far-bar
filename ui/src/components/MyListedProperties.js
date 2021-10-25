@@ -64,7 +64,7 @@ const MyListedProperties = (props) => {
                     const seller = (sellers[i]);
                     const streetAddress = streetAddresses[i];
                     const listPrice = listPrices[i];
-                    const listingStatus = (approvals[i] === true ? "active" : "in review");
+                    const listingStatus = (approvals[i] === true ? "active" : "pending signoff");
 
                     tempRows.push({thumbnail, contractId, seller, streetAddress, listPrice, listingStatus});
                 }
@@ -157,7 +157,7 @@ const MyListedProperties = (props) => {
                                 <TableCell align="right">
                                 <ButtonGroup variant="contained">
                                     <IconButton
-                                        disabled={row.listingStatus !== "in review"}
+                                        disabled={row.listingStatus !== "pending signoff"}
                                         color="primary"
                                         onClick={() => approveListing(row.contractId)}
                                     >

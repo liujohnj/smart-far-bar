@@ -89,8 +89,14 @@ const MyBuyersOffers = (props) => {
                         status = "rejected";
                     } else if (template === "OFFER" && counter === true) {
                         status = "counter pending";
-                    } else if (template === "OFFER") {
+                    } else if (template === "OFFER" && approval === false) {
+                        status = "pending signoff";
+                    } else if (template === "OFFER" && approval === true) {
+                        status = "tendered"
+                    } else if (template === "COUNTEROFFER" && counter === false) {
                         status = "received";
+                    } else if (template === "COUNTEROFFER" && counter === true) {
+                        status = "offer pending";
                     }
                     
                     
@@ -236,7 +242,7 @@ const MyBuyersOffers = (props) => {
         if (templateType === "OFFER") {
             acceptOffer(contractId);
         }
-        else if (templateType === "COUNTEROFFER" && status === "in review") {
+        else if (templateType === "COUNTEROFFER" && status === "pending signoff") {
             approvePreparedCounteroffer(contractId);
         }
     }
@@ -306,7 +312,7 @@ const MyBuyersOffers = (props) => {
                                     <Tooltip title="Prepare counteroffer">
                                         <IconButton
                                             disabled={
-                                                true
+                                                row.status !== "offer pending"
                                             }
                                             color="primary"
                                             onClick={() => handleCounteroffer(row.contractId)}
