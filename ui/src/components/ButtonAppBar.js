@@ -6,11 +6,12 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
+// TO-DO: Remove from components directory
 import daml from './daml.png'
 
-//'C:/Users/john/Projects/daml/smart-far-bar/ui/public/daml.png'
-
-//C:\Users\john\Projects\daml\smart-far-bar\ui\src\components\ButtonAppBar.js
+/*
+    Top Nav Bar
+*/
 const ButtonAppBar = (props) => {
 
     const [loggedInUser, setLoggedInUser] = useState('');
