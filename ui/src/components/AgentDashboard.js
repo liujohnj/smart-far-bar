@@ -11,6 +11,8 @@ const AgentDashboard = (props) => {
 
     const [isAgencyUpdated, setIsAgencyUpdated] = useState(false);
     const [isListingsUpdated, setIsListingsUpdated] = useState(false);
+    const [isListingApproved, setIsListingApproved] = useState(false);
+
 
     return (
         <div>
@@ -52,7 +54,7 @@ const AgentDashboard = (props) => {
                 <Typography variant="subtitle1" sx={{ml:2, mb:1}} >
                     My Listings
                 </Typography>
-                <MyListings user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
+                <MyListings user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} />
             </Box>
             
             <Box
@@ -65,7 +67,7 @@ const AgentDashboard = (props) => {
                 <Typography variant="subtitle1" sx={{ml:2, mb:1}} >
                     All Public Listings
                 </Typography>
-                <AllPublicListings user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
+                <AllPublicListings user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} />
             </Box>
         </div>
     )

@@ -7,6 +7,7 @@ import '@fontsource/roboto/700.css';
 import Login from './components/Login';
 import TestWorkflow from './components/TestWorkflow';
 import Dashboard from './components/Dashboard';
+import ListingForm from './components/ListingForm';
 
 
 const App = () => {
@@ -23,6 +24,9 @@ const App = () => {
                     </Route>
                     <Route exact path="/dashboard">
                         <Dashboard />
+                    </Route>
+                    <Route exact path="/form">
+                        <ListingForm />
                     </Route>
                 </Switch>
             </Router>

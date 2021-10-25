@@ -93,3 +93,18 @@ Caused by: java.net.BindException: Address already in use: bind
 09:16:53.162 [sandbox-akka.actor.default-dispatcher-6] INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started 
 09:17:02.404 [program-resource-pool-3] INFO  c.d.p.apiserver.LedgerApiServer - Listening on localhost:6865 over plain text. 
 09:17:02.435 [program-resource-pool-2] INFO  com.daml.platform.sandboxnext.Runner - Initialized sandbox version 1.16.0 with ledger-id = daml-smart-far-bar, port = 6865, dar file = List(.daml\dist\smart-far-bar-0.0.1.dar), time mode = wall-clock time, ledger = in-memory, auth-service = AuthServiceWildcard$, contract ids seeding = strong 
+15:06:27.395 [sandbox-akka.actor.default-dispatcher-5] INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started 
+15:06:37.034 [program-resource-pool-3] INFO  c.d.p.apiserver.LedgerApiServer - Listening on localhost:6865 over plain text. 
+15:06:37.098 [program-resource-pool-4] INFO  com.daml.platform.sandboxnext.Runner - Initialized sandbox version 1.16.0 with ledger-id = daml-smart-far-bar, port = 6865, dar file = List(.daml\dist\smart-far-bar-0.0.1.dar), time mode = wall-clock time, ledger = in-memory, auth-service = AuthServiceWildcard$, contract ids seeding = strong 
+16:04:25.365 [sandbox-akka.actor.default-dispatcher-4] INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started 
+16:04:33.516 [program-resource-pool-4] INFO  c.d.p.apiserver.LedgerApiServer - Listening on localhost:6865 over plain text. 
+16:04:33.573 [program-resource-pool-2] INFO  com.daml.platform.sandboxnext.Runner - Initialized sandbox version 1.16.0 with ledger-id = daml-smart-far-bar, port = 6865, dar file = List(.daml\dist\smart-far-bar-0.0.1.dar), time mode = wall-clock time, ledger = in-memory, auth-service = AuthServiceWildcard$, contract ids seeding = strong 
+16:10:32.667 [sandbox-akka.actor.default-dispatcher-4] INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started 
+16:10:40.334 [program-resource-pool-1] INFO  c.d.p.apiserver.LedgerApiServer - Listening on localhost:6865 over plain text. 
+16:10:40.386 [program-resource-pool-2] INFO  com.daml.platform.sandboxnext.Runner - Initialized sandbox version 1.16.0 with ledger-id = daml-smart-far-bar, port = 6865, dar file = List(.daml\dist\smart-far-bar-0.0.1.dar), time mode = wall-clock time, ledger = in-memory, auth-service = AuthServiceWildcard$, contract ids seeding = strong 
+17:23:28.536 [sandbox-akka.actor.default-dispatcher-5] INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started 
+17:23:39.850 [program-resource-pool-2] INFO  c.d.p.apiserver.LedgerApiServer - Listening on localhost:6865 over plain text. 
+17:23:39.925 [program-resource-pool-3] INFO  com.daml.platform.sandboxnext.Runner - Initialized sandbox version 1.16.0 with ledger-id = daml-smart-far-bar, port = 6865, dar file = List(.daml\dist\smart-far-bar-0.0.1.dar), time mode = wall-clock time, ledger = in-memory, auth-service = AuthServiceWildcard$, contract ids seeding = strong 
+17:48:52.315 [sandbox-akka.actor.default-dispatcher-5] INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started 
+17:49:03.468 [program-resource-pool-4] INFO  c.d.p.apiserver.LedgerApiServer - Listening on localhost:6865 over plain text. 
+17:49:03.522 [program-resource-pool-1] INFO  com.daml.platform.sandboxnext.Runner - Initialized sandbox version 1.16.0 with ledger-id = daml-smart-far-bar, port = 6865, dar file = List(.daml\dist\smart-far-bar-0.0.1.dar), time mode = wall-clock time, ledger = in-memory, auth-service = AuthServiceWildcard$, contract ids seeding = strong 

@@ -13,15 +13,15 @@ data Parties = Parties
 data Property = Property
     with
         streetAddress : Text
-        city : Text
-        state: Text
-        zipCode : Text
-        county : Text
-        taxId : Text
-        legalDescr : Text
-        personalProperty : Text
-        excludedItems : Text
-        thumbnail : Thumbnail
+        --city : Text
+        --state: Text
+        --zipCode : Text
+        --county : Text
+        --taxId : Text
+        --legalDescr : Text
+        --personalProperty : Text
+        --excludedItems : Text
+        --thumbnail : Thumbnail
     deriving (Eq, Show)
 
 data EscrowAgent = EscrowAgent
@@ -36,16 +36,16 @@ data EscrowAgent = EscrowAgent
 data Terms = Terms
     with
         purchasePrice : Decimal
-        initialDeposit : Decimal
-        initialDepositTime : Int
-        balanceToClose : Decimal
-        timeForAcceptance : Date
-        closingDate : Date
-        isAssignable : Text
-        titleEvidenceDeadline : Int
-        whoDesignatesClosingAgent : Text
-        inspectionPeriod : Int
-        additionalTerms : Text
+        --initialDeposit : Decimal
+        --initialDepositTime : Int
+        --balanceToClose : Decimal
+        --timeForAcceptance : Date
+        --closingDate : Date
+        --isAssignable : Text
+        --titleEvidenceDeadline : Int
+        --whoDesignatesClosingAgent : Text
+        --inspectionPeriod : Int
+        --additionalTerms : Text
     deriving (Eq, Show)
 
 template SellerAgencyProposal
@@ -91,11 +91,13 @@ template SellerAgencyCreated
             nonconsuming PrepareListing: ContractId PreparedListing
                 with
                     property : Property
+                    --escrowAgent : EscrowAgent
                     listPrice : Decimal
                 do
                     create PreparedListing with
                         seller = party
                         property
+                        --escrowAgent
                         listPrice
                         sellerAgent = agent
                         templateType = "LISTING"
@@ -105,6 +107,7 @@ template PreparedListing
     with
         seller : Party
         property : Property
+        --escrowAgent : EscrowAgent
         listPrice : Decimal
         sellerAgent : Party
         templateType : Text
@@ -120,6 +123,7 @@ template PreparedListing
                     create ApprovedListing with
                         seller
                         property
+                        --escrowAgent
                         listPrice
                         sellerAgent
                         templateType = "LISTING"
@@ -130,6 +134,7 @@ template ApprovedListing
     with
         seller : Party
         property : Property
+        --escrowAgent : EscrowAgent
         listPrice : Decimal
         sellerAgent : Party
         templateType : Text
@@ -183,14 +188,14 @@ template BuyerAgencyCreated
                 with
                     parties : Parties
                     property : Property
-                    escrowAgent : EscrowAgent
+                    --escrowAgent : EscrowAgent
                     terms : Terms
                     sellerAgent : Party
                 do
                     create PreparedOffer with
                         parties
                         property
-                        escrowAgent
+                        --escrowAgent
                         terms
                         sellerAgent
                         buyerAgent = agent
@@ -201,7 +206,7 @@ template PreparedOffer
     with
         parties : Parties
         property : Property
-        escrowAgent : EscrowAgent
+        --escrowAgent : EscrowAgent
         terms : Terms
         sellerAgent : Party
         buyerAgent : Party
@@ -216,7 +221,7 @@ template PreparedOffer
                     create TenderedOffer with
                         parties
                         property
-                        escrowAgent
+                        --escrowAgent
                         terms
                         sellerAgent
                         buyerAgent
@@ -229,7 +234,7 @@ template TenderedOffer
     with
         parties : Parties
         property : Property
-        escrowAgent : EscrowAgent
+        --escrowAgent : EscrowAgent
         terms : Terms
         sellerAgent : Party
         buyerAgent : Party
@@ -244,17 +249,17 @@ template TenderedOffer
         controller parties.seller can
             AcceptOffer : ContractId ExecutedContract
                 with
-                    escrowAgentName : Party
+                    --escrowAgentName : Party
                     admin : Party
                 do
                     create ExecutedContract with
                         parties
                         property
-                        escrowAgent
+                        --escrowAgent
                         terms
                         sellerAgent
                         buyerAgent
-                        escrowAgentName
+                        --escrowAgentName
                         templateType = "CONTRACT"
                         admin
 
@@ -275,22 +280,22 @@ template ExecutedContract
     with
         parties : Parties
         property : Property
-        escrowAgent : EscrowAgent
+        --escrowAgent : EscrowAgent
         terms : Terms
         sellerAgent : Party
         buyerAgent : Party
-        escrowAgentName : Party
+        --escrowAgentName : Party
         templateType : Text
         admin : Party
     where
         signatory parties.seller, parties.buyer
-        observer sellerAgent, buyerAgent, escrowAgentName, admin
+        observer sellerAgent, buyerAgent, admin--, escrowAgentName
 
 template PreparedCounteroffer
     with
         parties : Parties
         property : Property
-        escrowAgent : EscrowAgent
+        --escrowAgent : EscrowAgent
         terms : Terms
         sellerAgent : Party
         buyerAgent : Party
@@ -305,7 +310,7 @@ template PreparedCounteroffer
                         create TenderedCounteroffer with
                             parties
                             property
-                            escrowAgent
+                            --escrowAgent
                             terms
                             sellerAgent
                             buyerAgent
@@ -318,7 +323,7 @@ template TenderedCounteroffer
     with
         parties : Parties
         property : Property
-        escrowAgent : EscrowAgent
+        --escrowAgent : EscrowAgent
         terms : Terms
         sellerAgent : Party
         buyerAgent : Party
@@ -333,17 +338,17 @@ template TenderedCounteroffer
         controller parties.buyer can
                 AcceptCounteroffer : ContractId ExecutedContract
                     with
-                        escrowAgentName : Party
+                        --escrowAgentName : Party
                         admin : Party
                     do
                         create ExecutedContract with
                             parties
                             property
-                            escrowAgent
+                            --escrowAgent
                             terms
                             sellerAgent
                             buyerAgent
-                            escrowAgentName
+                            --escrowAgentName
                             templateType = "CONTRACT"
                             admin
 
@@ -467,15 +472,15 @@ setup = script do
     let
         property = Property with
             streetAddress = "123 Main St"
-            city = "Orlando"
-            state = "FL"
-            zipCode = "33701"
-            county = "Orange"
-            taxId = "1234567890"
-            legalDescr = "Lot 1, Mickey Mouse Homes Subdivision"
-            personalProperty = "None"
-            excludedItems = "None"
-            thumbnail = ""
+            --city = "Orlando"
+            --state = "FL"
+            --zipCode = "33701"
+            --county = "Orange"
+            --taxId = "1234567890"
+            --legalDescr = "Lot 1, Mickey Mouse Homes Subdivision"
+            --personalProperty = "None"
+            --excludedItems = "None"
+            --thumbnail = ""
 
     let
         escrowAgent = EscrowAgent with
@@ -499,6 +504,7 @@ setup = script do
     offer05 <- submit david do
         exerciseCmd offer04 PrepareListing with
             property
+            --escrowAgent
             listPrice = 100000.00
 
     offer06 <- submit alice do
@@ -524,21 +530,21 @@ setup = script do
         let
             terms = Terms with
                 purchasePrice = 80000.00
-                initialDeposit = 5000.00
-                initialDepositTime = 3
-                balanceToClose = 75000.00
-                timeForAcceptance = date 2021 Oct 21
-                closingDate = date 2021 Nov 15
-                isAssignable = "No"
-                titleEvidenceDeadline = 5
-                whoDesignatesClosingAgent = "Seller"
-                inspectionPeriod = 10
-                additionalTerms = ""
+                --initialDeposit = 5000.00
+                --initialDepositTime = 3
+                --balanceToClose = 75000.00
+                --timeForAcceptance = date 2021 Oct 21
+                --closingDate = date 2021 Nov 15
+                --isAssignable = "No"
+                --titleEvidenceDeadline = 5
+                --whoDesignatesClosingAgent = "Seller"
+                --inspectionPeriod = 10
+                --additionalTerms = ""
     
         exerciseCmd offer08 PrepareOffer with
             parties
             property
-            escrowAgent
+            --escrowAgent
             terms
             sellerAgent = david
 
@@ -559,21 +565,21 @@ setup = script do
 
             terms = Terms with
                 purchasePrice = 90000.00
-                initialDeposit = 5000.00
-                initialDepositTime = 3
-                balanceToClose = 85000.00
-                timeForAcceptance = date 2021 Oct 21
-                closingDate = date 2021 Nov 15
-                isAssignable = "No"
-                titleEvidenceDeadline = 5
-                whoDesignatesClosingAgent = "Seller"
-                inspectionPeriod = 10
-                additionalTerms = ""
+                --initialDeposit = 5000.00
+                --initialDepositTime = 3
+                --balanceToClose = 85000.00
+                --timeForAcceptance = date 2021 Oct 21
+                --closingDate = date 2021 Nov 15
+                --isAssignable = "No"
+                --titleEvidenceDeadline = 5
+                --whoDesignatesClosingAgent = "Seller"
+                --inspectionPeriod = 10
+                --additionalTerms = ""
     
         createCmd PreparedCounteroffer with
             parties
             property
-            escrowAgent
+            --escrowAgent
             terms
             sellerAgent = david
             buyerAgent = carol
@@ -597,21 +603,21 @@ setup = script do
 
             terms = Terms with
                 purchasePrice = 87500.00
-                initialDeposit = 5000.00
-                initialDepositTime = 3
-                balanceToClose = 82500.00
-                timeForAcceptance = date 2021 Oct 21
-                closingDate = date 2021 Nov 15
-                isAssignable = "No"
-                titleEvidenceDeadline = 5
-                whoDesignatesClosingAgent = "Seller"
-                inspectionPeriod = 10
-                additionalTerms = ""
+                --initialDeposit = 5000.00
+                --initialDepositTime = 3
+                --balanceToClose = 82500.00
+                --timeForAcceptance = date 2021 Oct 21
+                --closingDate = date 2021 Nov 15
+                --isAssignable = "No"
+                --titleEvidenceDeadline = 5
+                --whoDesignatesClosingAgent = "Seller"
+                --inspectionPeriod = 10
+                --additionalTerms = ""
 
         createCmd PreparedOffer with
             parties
             property
-            escrowAgent
+            --escrowAgent
             terms
             sellerAgent = david
             buyerAgent = carol
@@ -635,21 +641,21 @@ setup = script do
 
             terms = Terms with
                 purchasePrice = 89250.00
-                initialDeposit = 5000.00
-                initialDepositTime = 3
-                balanceToClose = 85000.00
-                timeForAcceptance = date 2021 Oct 21
-                closingDate = date 2021 Nov 15
-                isAssignable = "No"
-                titleEvidenceDeadline = 5
-                whoDesignatesClosingAgent = "Seller"
-                inspectionPeriod = 10
-                additionalTerms = ""
+                --initialDeposit = 5000.00
+                --initialDepositTime = 3
+                --balanceToClose = 85000.00
+                --timeForAcceptance = date 2021 Oct 21
+                --closingDate = date 2021 Nov 15
+                --isAssignable = "No"
+                --titleEvidenceDeadline = 5
+                --whoDesignatesClosingAgent = "Seller"
+                --inspectionPeriod = 10
+                --additionalTerms = ""
     
         createCmd PreparedCounteroffer with
             parties
             property
-            escrowAgent
+            --escrowAgent
             terms
             sellerAgent = david
             buyerAgent = carol
@@ -661,5 +667,5 @@ setup = script do
 
     submit bob do
         exerciseCmd offer75 AcceptCounteroffer with
-            escrowAgentName = faythe
+            --escrowAgentName = faythe
             admin = olivia

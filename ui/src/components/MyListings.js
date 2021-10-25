@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-//import Button from '@mui/material/Button';
-//import Typography from '@mui/material/Typography';
 import { Box } from "@mui/system";
 import { IconButton, ButtonGroup } from '@mui/material';
 import Table from '@mui/material/Table';
@@ -10,20 +8,15 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import AddListingDialog from './AddListingDialog';
 import EditIcon from '@mui/icons-material/Edit';
 const axios = require('axios');
 
 const MyListings = (props) => {
     const user = props.user;
-    const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
+    const { isListingsUpdated } = props.updateListingsComponent;
 
-    const { username, userType, userToken } = user;
-    const actions = "";
+    const { username, userToken } = user;
     const [rows, setRows] = useState([]);
-
     const [open, setOpen] = useState(false);
 
     // Uses REST API to get all active contracts matching a given query.

@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-//import Button from '@mui/material/Button';
-//import Typography from '@mui/material/Typography';
 import { Box } from "@mui/system";
 import { IconButton, ButtonGroup } from '@mui/material';
 import Table from '@mui/material/Table';
@@ -10,32 +8,26 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import AddListingDialog from './AddListingDialog';
-import EditIcon from '@mui/icons-material/Edit';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import CreateOfferDialog from './CreateOfferDialog';
 const axios = require('axios');
 
 const AllPublicListings = (props) => {
     const user = props.user;
-    const { username, userType, userToken } = user;
+    const { username } = user;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
+    const { isListingApproved } = props.updateApprovedListingsComponent;
 
     const adminToken = "Bearer " + process.env.REACT_APP_TOKEN_OLIVIA;
 
-    const actions = "";
     const [rows, setRows] = useState([]);
 
-    const [isListingApproved, setIsListingApproved] = useState(false);
-
-    const admin = "Olivia";
+    const [open, setOpen] = useState(false);
+    const [contractIdProp, setContractIdProp] = useState("");
 
     // Uses REST API to get all active contracts matching a given query.
     //   Fetches all agency-related contracts.
     const getMatchingContracts = async () => {
-        console.log(adminToken);
         try {
             const response = await axios({
                 method: "post",
@@ -94,31 +86,9 @@ const AllPublicListings = (props) => {
     }, [isListingsUpdated, isListingApproved]);
 
 
-    const approveListing = async (contractId) => {
-        try {
-            await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": adminToken,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": "Main:PreparedListing",
-                        "contractId": contractId,
-                        "choice": "ApproveListing",
-                        "argument": {
-                            "admin": admin
-                        },
-                    }
-            });
-            setIsListingApproved(!isListingApproved);
-        } catch (err) {
-            console.log(err);
-        }
+    const handleCreateOffer = async (contractId) => {
+        setContractIdProp(contractId);
+        setOpen(true);
     }
 
 
@@ -169,20 +139,19 @@ const AllPublicListings = (props) => {
                                 <TableCell align="right">
                                 <ButtonGroup variant="contained">
                                     <IconButton
-                                        disabled={row.listingStatus !== "in review"}
+                                        disabled={row.listingStatus !== "active" || row.sellerAgent === username}
                                         color="primary"
-                                        onClick={() => approveListing(row.contractId)}
+                                        onClick={() => handleCreateOffer(row.contractId)}
                                     >
-                                        <CheckBoxIcon
+                                        <LocalOfferIcon
                                             sx={{
                                             fontSize: 23, 
                                             }}
                                         />
                                     </IconButton>
 
-                                    {/*}
-                                    <AddListingDialog user={user} isOpen={{open, setOpen}} updateComponent={{isListingsUpdated, setIsListingsUpdated}} />
-                                    */}
+                                    <CreateOfferDialog user={user} isOpen={{open, setOpen}} contractIdPropObj={{contractIdProp, setContractIdProp}}updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
+
                                 </ButtonGroup>
                                 </TableCell>
                             </TableRow>

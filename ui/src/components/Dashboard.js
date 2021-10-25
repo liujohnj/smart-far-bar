@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import Typography from '@mui/material/Typography';
-import { returnUserType, returnUserToken } from './Users';
+import { returnUserType, returnUserToken, returnUserRole } from './Users';
 import ButtonAppBar from './ButtonAppBar';
 import AgentDashboard from './AgentDashboard';
 import ClientDashboard from './ClientDashboard';
@@ -13,7 +13,9 @@ const Dashboard = () => {
     // Back-end server substitute for demo purposes
     const userType = returnUserType(username);
     const userToken = returnUserToken(username);
-    const user = {username, userType, userToken}
+    const userRole = returnUserRole(username);
+    const user = {username, userType, userRole, userToken}
+
 
     return (
         <div>

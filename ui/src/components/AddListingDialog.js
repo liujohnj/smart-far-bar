@@ -5,10 +5,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import FormControl from '@mui/material/FormControl';
-import { IconButton } from '@mui/material';
-import { FormControlLabel } from '@mui/material';
-import { FormLabel } from '@mui/material';
+import { Typography } from '@mui/material';
 const axios = require('axios');
 
 
@@ -33,12 +30,18 @@ const AddListingDialog = (props) => {
     const [personalProperty, setPersonalProperty] = useState("");
     const [excludedItems, setExcludedItems] = useState("");
     const [thumbnail, setThumbnail] = useState("");
+    const [escrowAgentName, setEscrowAgentName] = useState("");
+    const [escrowAgentAddress, setEscrowAgentAddress] = useState("");
+    const [escrowAgentPhone, setEscrowAgentPhone] = useState("");
+    const [escrowAgentEmail, setEscrowAgentEmail] = useState("");
+    const [escrowAgentFax, setEscrowAgentFax] = useState("");
     const [listPrice, setListPrice] = useState(0.00);
     
     const handleCancel = () => {
         setOpen(false);
     };
 
+    // TO-DO: Refactor to combine into an object and simplify
     const handleSellerChange = (event) => {
         setSeller(event.target.value);
     };
@@ -83,6 +86,26 @@ const AddListingDialog = (props) => {
         setThumbnail(event.target.value);
     };
 
+    const handleEscrowAgentNameChange = (event) => {
+        setEscrowAgentName(event.target.value);
+    }
+
+    const handleEscrowAgentAddressChange = (event) => {
+        setEscrowAgentAddress(event.target.value);
+    }
+
+    const handleEscrowAgentPhoneChange = (event) => {
+        setEscrowAgentPhone(event.target.value);
+    }
+
+    const handleEscrowAgentEmailChange = (event) => {
+        setEscrowAgentEmail(event.target.value);
+    }
+
+    const handleEscrowAgentFaxChange = (event) => {
+        setEscrowAgentFax(event.target.value);
+    }
+
     const handleListPriceChange = (event) => {
         setListPrice(event.target.value);
     };
@@ -105,6 +128,7 @@ const AddListingDialog = (props) => {
                             "seller": seller,
                             "property": {
                                 "streetAddress": streetAddress,
+                                /*
                                 "city": city,
                                 "state": state,
                                 "zipCode": zipCode,
@@ -114,7 +138,17 @@ const AddListingDialog = (props) => {
                                 "personalProperty": personalProperty,
                                 "excludedItems": excludedItems,
                                 "thumbnail": thumbnail
+                                */
                             },
+                            /*
+                            "escrowAgent": {
+                                "name": escrowAgentName,
+                                "address": escrowAgentAddress,
+                                "phone": escrowAgentPhone,
+                                "email": escrowAgentEmail,
+                                "fax": escrowAgentFax
+                            },
+                            */
                             "listPrice": listPrice,
                             "sellerAgent": username,
                             "templateType": "LISTING",
@@ -141,8 +175,12 @@ const AddListingDialog = (props) => {
     return (
         <div>
             <Dialog open={open} onClose={handleCancel}>
-            <DialogTitle>Create New Listing</DialogTitle>
+            <DialogTitle variant="h5">Create New Listing</DialogTitle>
             <DialogContent>
+
+                <Typography variant="subtitle1" color="primary" >
+                    Owner information
+                </Typography>
 
                 <TextField
                     autoFocus
@@ -156,6 +194,9 @@ const AddListingDialog = (props) => {
                     onChange={handleSellerChange}
                 />
 
+                <Typography variant="subtitle1" color="primary" sx={{mt:3}}>
+                    Property information
+                </Typography>
                 <TextField
                     autoFocus
                     margin="dense"
@@ -275,6 +316,73 @@ const AddListingDialog = (props) => {
                     value={thumbnail}
                     onChange={handleThumbnailChange}
                 />
+
+                <Typography variant="subtitle1" color="primary" sx={{mt:3}}>
+                    Escrow Agent Details
+                </Typography>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id=""
+                    label="Name"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={escrowAgentName}
+                    onChange={handleEscrowAgentNameChange}
+                />
+
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id=""
+                    label="Address"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={escrowAgentAddress}
+                    onChange={handleEscrowAgentAddressChange}
+                />
+
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id=""
+                    label="Phone"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={escrowAgentPhone}
+                    onChange={handleEscrowAgentPhoneChange}
+                />
+
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id=""
+                    label="Email"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={escrowAgentEmail}
+                    onChange={handleEscrowAgentEmailChange}
+                />
+
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id=""
+                    label="Fax"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={escrowAgentFax}
+                    onChange={handleEscrowAgentFaxChange}
+                />
+
+                <Typography variant="subtitle1" color="primary" sx={{mt:3}}>
+                    Listing Details
+                </Typography>
 
                 <TextField
                     autoFocus
