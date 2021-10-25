@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 const axios = require('axios');
 
 
-const CreateCounterofferDialog = (props) => {
+const CreateCounterToCounterofferDialog = (props) => {
     const user = props.user;
     const { open, setOpen } = props.isOpen;
     const { contractIdProp } = props.contractIdPropObj;
@@ -224,7 +224,7 @@ const CreateCounterofferDialog = (props) => {
     }, [contractIdProp]);
 
 
-    const prepareCounteroffer = async () => {
+    const prepareCounterToCounteroffer = async () => {
         try {
             const response = await axios({
                 method: "post",
@@ -237,7 +237,7 @@ const CreateCounterofferDialog = (props) => {
                     },
                 data:
                     {
-                        "templateId": "Main:PreparedCounteroffer",
+                        "templateId": "Main:PreparedOffer",
                         "payload": {
                             "parties": {
                                 "seller": seller,
@@ -283,8 +283,8 @@ const CreateCounterofferDialog = (props) => {
                             },
                             "sellerAgent": sellerAgent,
                             "buyerAgent": buyerAgent,
-                            "templateType": templateType,
-                            "isApproved": isApproved,        
+                            "templateType": "OFFER",
+                            "isApproved": false,        
                         }
                     }
             });
@@ -301,14 +301,14 @@ const CreateCounterofferDialog = (props) => {
     }
 
     const handleSubmit = async () => {
-        await prepareCounteroffer();
+        await prepareCounterToCounteroffer();
         setOpen(false);
     };
 
     return (
         <div>
             <Dialog open={open} onClose={handleCancel}>
-            <DialogTitle>Create Counteroffer</DialogTitle>
+            <DialogTitle>Create Counter to Counteroffer</DialogTitle>
             <DialogContent>
 
                 {/*}
@@ -679,4 +679,4 @@ const CreateCounterofferDialog = (props) => {
     );
 }
 
-export default CreateCounterofferDialog;
+export default CreateCounterToCounterofferDialog;

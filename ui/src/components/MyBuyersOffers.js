@@ -11,6 +11,7 @@ import Paper from '@mui/material/Paper';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
+import CreateCounterToCounterofferDialog from './CreateCounterToCounterofferDialog'
 import { Tooltip } from '@mui/material';
 const axios = require('axios');
 
@@ -29,7 +30,7 @@ const MyBuyersOffers = (props) => {
 
     // Uses REST API to get all active contracts matching a given query.
     //   Fetches all agency-related contracts.
-    const getSellersOffers = async () => {
+    const getBuyersOffers = async () => {
         try {
             const response = await axios({
                 method: "post",
@@ -112,139 +113,14 @@ const MyBuyersOffers = (props) => {
     }
 
     useEffect(() => {
-        getSellersOffers();
+        getBuyersOffers();
     }, [isListingsUpdated, isListingApproved]);
 
 
-    const handleApproveOffer = async (contractId) => {
-        try {
-            await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": userToken,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": "Main:PreparedOffer",
-                        "contractId": contractId,
-                        "choice": "ApproveOffer",
-                        "argument": {
 
-                        },
-                    }
-            });
-            //setIsListingApproved(!isListingApproved);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-    
-    const indicateCounteroffer = async (contractId) => {
-        try {
-            await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": userToken,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": "Main:TenderedOffer",
-                        "contractId": contractId,
-                        "choice": "IndicateCounteroffer",
-                        "argument": {
-
-                        },
-                    }
-            });
-            //setIsListingApproved(!isListingApproved);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-    
-    const acceptOffer = async (contractId) => {
-        try {
-            const response = await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": userToken,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": "Main:TenderedOffer",
-                        "contractId": contractId,
-                        "choice": "AcceptOffer",
-                        "argument": {
-                            "admin": "Faythe"
-                        },
-                    }
-            });
-            console.log("result = ", response.data.result);
-            //setIsListingApproved(!isListingApproved);
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    const handleCounteroffer = async (contractId) => {
-        indicateCounteroffer(contractId);
-    };
-
-    const rejectOffer = async (contractId) => {
-        try {
-            const response = await axios({
-                method: "post",
-                url: '/v1/exercise',
-                withCredentials: true,
-                headers:
-                    {
-                        "Authorization": userToken,
-                        "Content-Type": "application/json",
-                    },
-                data:
-                    {
-                        "templateId": "Main:TenderedOffer",
-                        "contractId": contractId,
-                        "choice": "RejectOffer",
-                        "argument": {
-                            
-                        },
-                    }
-            });
-            console.log("result = ", response.data.result);
-            //setIsListingApproved(!isListingApproved);
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    const handleRejectOffer = async (contractId) => {
-        rejectOffer(contractId);
-    };
-
-    const approvePreparedCounteroffer = async (contractId) => {
-
-    };
-
-    const handleApproveOrAccept = (templateType, status, contractId) => {
-        if (templateType === "OFFER") {
-            acceptOffer(contractId);
-        }
-        else if (templateType === "COUNTEROFFER" && status === "pending signoff") {
-            approvePreparedCounteroffer(contractId);
-        }
+    const handlePrepareCounterToCounteroffer = async (contractId) => {
+        setContractIdProp(contractId);
+        setOpen(true);
     }
 
     return (
@@ -300,7 +176,7 @@ const MyBuyersOffers = (props) => {
                                                 true
                                             }
                                             color="primary"
-                                            onClick={() => handleApproveOrAccept(row.template, row.status, row.contractId)}
+
                                         >
                                             <CheckBoxIcon
                                                 sx={{
@@ -309,13 +185,13 @@ const MyBuyersOffers = (props) => {
                                             />
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip title="Prepare counteroffer">
+                                    <Tooltip title="Prepare counter to counteroffer">
                                         <IconButton
                                             disabled={
                                                 row.status !== "offer pending"
                                             }
                                             color="primary"
-                                            onClick={() => handleCounteroffer(row.contractId)}
+                                            onClick={() => handlePrepareCounterToCounteroffer(row.contractId)}
                                         >
                                             <AssignmentReturnIcon
                                                 sx={{
@@ -325,13 +201,15 @@ const MyBuyersOffers = (props) => {
                                         </IconButton>
                                     </Tooltip>
                                     
+                                    <CreateCounterToCounterofferDialog user={user} isOpen={{open, setOpen}} contractIdPropObj={{contractIdProp, setContractIdProp}}updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
+
                                     <Tooltip title="Reject">
                                         <IconButton
                                             disabled={
                                                 true
                                             }
                                             color="primary"
-                                            onClick={() => handleRejectOffer(row.contractId)}
+                                            
                                         >
                                             <CancelIcon
                                                 sx={{
