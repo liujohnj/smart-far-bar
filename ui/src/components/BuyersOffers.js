@@ -18,6 +18,8 @@ const BuyersOffers = (props) => {
     const { username, userToken } = user;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
     const { isListingApproved } = props.updateApprovedListingsComponent;
+    const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
+    const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
 
     const adminToken = "Bearer " + process.env.REACT_APP_TOKEN_OLIVIA;
 
@@ -112,7 +114,7 @@ const BuyersOffers = (props) => {
 
     useEffect(() => {
         getBuyersOffers();
-    }, [isListingsUpdated, isListingApproved]);
+    }, [isListingsUpdated, isListingApproved, isBuyersOffersUpdated, isSellersOffersUpdated]);
 
 
     const approvePreparedOffer = async (contractId) => {
@@ -138,7 +140,8 @@ const BuyersOffers = (props) => {
                     }
             });
             archiveTenderedCounteroffer(previousBuyerContractId);
-            //setIsListingApproved(!isListingApproved);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
@@ -165,7 +168,8 @@ const BuyersOffers = (props) => {
                         },
                     }
             });
-            //setIsListingApproved(!isListingApproved);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
@@ -192,7 +196,8 @@ const BuyersOffers = (props) => {
                         },
                     }
             });
-            //setIsListingApproved(!isListingApproved);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
@@ -219,7 +224,8 @@ const BuyersOffers = (props) => {
                         },
                     }
             });
-            //setIsListingApproved(!isListingApproved);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
@@ -252,12 +258,12 @@ const BuyersOffers = (props) => {
             const newContractId = obj.exerciseResult;
             console.log(newContractId);
             localStorage.setItem('previousBuyerContractId', newContractId);
-            //setIsListingApproved(!isListingApproved);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
     }
-
 
     const handleCounter = (contractId) => {
         indicateCounterToCounteroffer(contractId);

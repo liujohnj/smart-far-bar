@@ -19,6 +19,8 @@ const SellersOffers = (props) => {
     const { username, userToken } = user;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
     const { isListingApproved } = props.updateApprovedListingsComponent;
+    const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
+    const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
 
     const adminToken = "Bearer " + process.env.REACT_APP_TOKEN_OLIVIA;
 
@@ -134,7 +136,8 @@ const SellersOffers = (props) => {
                         },
                     }
             });
-            //setIsListingApproved(!isListingApproved);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
@@ -142,7 +145,7 @@ const SellersOffers = (props) => {
 
     useEffect(() => {
         getSellersOffers();
-    }, [isListingsUpdated, isListingApproved]);
+    }, [isListingsUpdated, isListingApproved, isSellersOffersUpdated, isBuyersOffersUpdated]);
 
 
     const approvePreparedCounteroffer = async (contractId) => {
@@ -167,8 +170,9 @@ const SellersOffers = (props) => {
                         },
                     }
             });
-            
             archiveTenderedOffer(previousSellerContractId);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
             //setIsListingApproved(!isListingApproved);
         } catch (err) {
             console.log(err);
@@ -202,7 +206,8 @@ const SellersOffers = (props) => {
             const newContractId = obj.exerciseResult;
             console.log(newContractId);
             localStorage.setItem('previousSellerContractId', newContractId);
-            //setIsListingApproved(!isListingApproved);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
@@ -230,14 +235,11 @@ const SellersOffers = (props) => {
                     }
             });
             console.log("result = ", response.data.result);
-            //setIsListingApproved(!isListingApproved);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
-    };
-
-    const handleCounteroffer = (contractId) => {
-        indicateCounteroffer(contractId);
     };
 
     const rejectOffer = async (contractId) => {
@@ -262,12 +264,17 @@ const SellersOffers = (props) => {
                     }
             });
             console.log("result = ", response.data.result);
-            //setIsListingApproved(!isListingApproved);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
     };
 
+    const handleCounteroffer = (contractId) => {
+        indicateCounteroffer(contractId);
+    };
+    
     const handleRejectOffer = async (contractId) => {
         rejectOffer(contractId);
     };

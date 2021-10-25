@@ -14,10 +14,11 @@ const axios = require('axios');
 
 const AllPublicListings = (props) => {
     const user = props.user;
-    const { username } = user;
+    const { username, userType } = user;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
     const { isListingApproved } = props.updateApprovedListingsComponent;
-
+    const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
+    const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
     const adminToken = "Bearer " + process.env.REACT_APP_TOKEN_OLIVIA;
 
     const [rows, setRows] = useState([]);
@@ -139,7 +140,11 @@ const AllPublicListings = (props) => {
                                 <TableCell align="right">
                                 <ButtonGroup variant="contained">
                                     <IconButton
-                                        disabled={row.listingStatus !== "active" || row.sellerAgent === username}
+                                        disabled={
+                                            row.listingStatus !== "active" ||
+                                            row.sellerAgent === username ||
+                                            userType === "Client"
+                                        }
                                         color="primary"
                                         onClick={() => handleCreateOffer(row.contractId)}
                                     >
@@ -150,7 +155,7 @@ const AllPublicListings = (props) => {
                                         />
                                     </IconButton>
 
-                                    <CreateOfferDialog user={user} isOpen={{open, setOpen}} contractIdPropObj={{contractIdProp, setContractIdProp}}updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
+                                    <CreateOfferDialog user={user} isOpen={{open, setOpen}} contractIdPropObj={{contractIdProp, setContractIdProp}}updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateSellersOffersComponent={{isSellersOffersUpdated, setIsSellersOffersUpdated}} updateBuyersOffersComponent={{isBuyersOffersUpdated, setIsBuyersOffersUpdated}} />
 
                                 </ButtonGroup>
                                 </TableCell>

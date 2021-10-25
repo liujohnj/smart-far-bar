@@ -13,6 +13,9 @@ const AddListingDialog = (props) => {
     const user = props.user;
     const { open, setOpen } = props.isOpen;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
+    const { isListingApproved, setIsListingApproved } = props.updateApprovedListingsComponent;
+    const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
+    const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
    
 
     //const { isAgencyUpdated, setIsAgencyUpdated } = useState(false);
@@ -162,6 +165,8 @@ const AddListingDialog = (props) => {
             setPropertyAddress("");
             */
             setIsListingsUpdated(!isListingsUpdated); // toggle to re-render parent component
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }

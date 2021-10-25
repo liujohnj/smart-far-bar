@@ -4,15 +4,20 @@ import { Box } from "@mui/system";
 import MyRealtors from "./MyRealtors";
 import MyListedProperties from "./MyListedProperties";
 import AllPublicListings from './AllPublicListings';
-import BuyersOffers from './BuyersOffiers';
+import BuyersOffers from './BuyersOffers';
 import SellersOffers from './SellersOffers';
 
 
 const ClientDashboard = (props) => {
     const user = props.user
+
+    // For re-rendering sibling components
     const [isAgencyUpdated, setIsAgencyUpdated] = useState(false);
     const [isListingsUpdated, setIsListingsUpdated] = useState(false);
     const [isListingApproved, setIsListingApproved] = useState(false);
+    const [isSellersOffersUpdated, setIsSellersOffersUpdated] = useState(false);
+    const [isBuyersOffersUpdated, setIsBuyersOffersUpdated] = useState(false);
+
 
     return (
         <div>
@@ -36,7 +41,11 @@ const ClientDashboard = (props) => {
                     </Typography>
                 </Box>
             </Box>
-            <MyRealtors user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated} } />
+            <MyRealtors
+                user={user} updateComponent={ {isAgencyUpdated, setIsAgencyUpdated}}
+                updateSellersOffersComponent={{isSellersOffersUpdated, setIsSellersOffersUpdated}}
+                updateBuyersOffersComponent={{isBuyersOffersUpdated, setIsBuyersOffersUpdated}}
+            />
 
             <Box
                 sx={{
@@ -61,7 +70,7 @@ const ClientDashboard = (props) => {
                 <Typography variant="subtitle1" sx={{ml:2, mb:1}} >
                     All Public Listings
                 </Typography>
-                <AllPublicListings user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} />
+                <AllPublicListings user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} updateSellersOffersComponent={{isSellersOffersUpdated, setIsSellersOffersUpdated}} updateBuyersOffersComponent={{isBuyersOffersUpdated, setIsBuyersOffersUpdated}} />
             </Box>
 
             <Box
@@ -75,11 +84,9 @@ const ClientDashboard = (props) => {
                     My Offers
                 </Typography>
                 
-                { user.userRole === "buyer" && <BuyersOffers user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} /> }
+                { user.userRole === "buyer" && <BuyersOffers user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} updateSellersOffersComponent={{isSellersOffersUpdated, setIsSellersOffersUpdated}} updateBuyersOffersComponent={{isBuyersOffersUpdated, setIsBuyersOffersUpdated}} /> }
 
-                { user.userRole === "seller" && <SellersOffers user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} /> }
-
-
+                { user.userRole === "seller" && <SellersOffers user={user} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} updateSellersOffersComponent={{isSellersOffersUpdated, setIsSellersOffersUpdated}} updateBuyersOffersComponent={{isBuyersOffersUpdated, setIsBuyersOffersUpdated}} /> }
             </Box>
         </div>
     )

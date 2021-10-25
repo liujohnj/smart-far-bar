@@ -14,8 +14,7 @@ const CreateCounterofferDialog = (props) => {
     const { open, setOpen } = props.isOpen;
     const { contractIdProp } = props.contractIdPropObj;
     const { username, userToken } = user;
-
-    console.log("ID ==> ", contractIdProp);
+    const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
 
     const [seller, setSeller] = useState("");
     const [buyer, setBuyer] = useState("");
@@ -177,7 +176,6 @@ const CreateCounterofferDialog = (props) => {
 
     
     const fetchOfferDetails = async () => {
-        console.log("fetching: ", contractIdProp);
         try {
             const response = await axios({
                 method: "post",
@@ -221,7 +219,7 @@ const CreateCounterofferDialog = (props) => {
 
     useEffect(() => {
         fetchOfferDetails();
-    }, [contractIdProp]);
+    }, [contractIdProp, isSellersOffersUpdated]);
 
 
     const prepareCounteroffer = async () => {
@@ -288,13 +286,7 @@ const CreateCounterofferDialog = (props) => {
                         }
                     }
             });
-            console.log("Response results: ", response.data);
-            /*
-            setName("");
-            setIsBuyer(true);
-            setPropertyAddress("");
-            */
-            //setIsListingsUpdated(!isListingsUpdated); // toggle to re-render parent component
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
         } catch (err) {
             console.log(err);
         }

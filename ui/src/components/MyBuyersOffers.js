@@ -20,6 +20,8 @@ const MyBuyersOffers = (props) => {
     const { username, userToken } = user;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
     const { isListingApproved } = props.updateApprovedListingsComponent;
+    const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
+    const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
 
     const adminToken = "Bearer " + process.env.REACT_APP_TOKEN_OLIVIA;
 
@@ -100,7 +102,6 @@ const MyBuyersOffers = (props) => {
                         status = "offer pending";
                     }
                     
-                    
                     tempRows.push({contractId, client, streetAddress, offeredPrice, offerer, template, status});
                 }
                 setRows(tempRows);
@@ -114,9 +115,7 @@ const MyBuyersOffers = (props) => {
 
     useEffect(() => {
         getBuyersOffers();
-    }, [isListingsUpdated, isListingApproved]);
-
-
+    }, [isListingsUpdated, isListingApproved, isBuyersOffersUpdated, isSellersOffersUpdated]);
 
     const handlePrepareCounterToCounteroffer = async (contractId) => {
         setContractIdProp(contractId);
@@ -201,7 +200,7 @@ const MyBuyersOffers = (props) => {
                                         </IconButton>
                                     </Tooltip>
                                     
-                                    <CreateCounterToCounterofferDialog user={user} isOpen={{open, setOpen}} contractIdPropObj={{contractIdProp, setContractIdProp}}updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
+                                    <CreateCounterToCounterofferDialog user={user} isOpen={{open, setOpen}} contractIdPropObj={{contractIdProp, setContractIdProp}}updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateBuyersOffersComponent={{isBuyersOffersUpdated, setIsBuyersOffersUpdated}} />
 
                                     <Tooltip title="Reject">
                                         <IconButton

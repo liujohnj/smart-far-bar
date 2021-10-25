@@ -14,8 +14,7 @@ const CreateCounterToCounterofferDialog = (props) => {
     const { open, setOpen } = props.isOpen;
     const { contractIdProp } = props.contractIdPropObj;
     const { username, userToken } = user;
-
-    console.log("ID ==> ", contractIdProp);
+    const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
 
     const [seller, setSeller] = useState("");
     const [buyer, setBuyer] = useState("");
@@ -175,9 +174,7 @@ const CreateCounterToCounterofferDialog = (props) => {
         setBuyerAgent(event.target.value);
     }
 
-    
     const fetchOfferDetails = async () => {
-        console.log("fetching: ", contractIdProp);
         try {
             const response = await axios({
                 method: "post",
@@ -193,35 +190,33 @@ const CreateCounterToCounterofferDialog = (props) => {
                         "contractId": contractIdProp
                     },
             });
-            const obj = response.data.result.payload;
-
-            console.log("OBJECT :", obj);
-            
-            setSeller(obj.parties.seller);
-            setBuyer(obj.parties.buyer);
-            setPurchasePrice(obj.terms.purchasePrice);
-            setStreetAddress(obj.property.streetAddress);
-            setCity(obj.property.city);
-            setState(obj.property.state);
-            setZipCode(obj.property.zipCode);
-            setCounty(obj.property.county);
-            setTaxId(obj.property.taxId);
-            setLegalDescr(obj.property.legalDescr);
-            setPersonalProperty(obj.property.personalProperty);
-            setExcludedItems(obj.property.excludedItems);
-            setThumbnail(obj.property.thumbnail);
-            setBuyerAgent(obj.buyerAgent);
-            setSellerAgent(obj.sellerAgent);
-
+            if (response.data.result) {
+                const obj = response.data.result.payload;
+                
+                setSeller(obj.parties.seller);
+                setBuyer(obj.parties.buyer);
+                setPurchasePrice(obj.terms.purchasePrice);
+                setStreetAddress(obj.property.streetAddress);
+                setCity(obj.property.city);
+                setState(obj.property.state);
+                setZipCode(obj.property.zipCode);
+                setCounty(obj.property.county);
+                setTaxId(obj.property.taxId);
+                setLegalDescr(obj.property.legalDescr);
+                setPersonalProperty(obj.property.personalProperty);
+                setExcludedItems(obj.property.excludedItems);
+                setThumbnail(obj.property.thumbnail);
+                setBuyerAgent(obj.buyerAgent);
+                setSellerAgent(obj.sellerAgent);
+            }
         } catch(err) {
             console.log("error: ", err);
         }
     }
 
-
     useEffect(() => {
         fetchOfferDetails();
-    }, [contractIdProp]);
+    }, [contractIdProp, isBuyersOffersUpdated]);
 
 
     const prepareCounterToCounteroffer = async () => {
@@ -288,13 +283,7 @@ const CreateCounterToCounterofferDialog = (props) => {
                         }
                     }
             });
-            console.log("Response results: ", response.data);
-            /*
-            setName("");
-            setIsBuyer(true);
-            setPropertyAddress("");
-            */
-            //setIsListingsUpdated(!isListingsUpdated); // toggle to re-render parent component
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }

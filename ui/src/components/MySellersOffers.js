@@ -20,6 +20,8 @@ const MySellersOffers = (props) => {
     const { username, userToken } = user;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
     const { isListingApproved } = props.updateApprovedListingsComponent;
+    const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
+    const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
 
     const [rows, setRows] = useState([]);
 
@@ -112,7 +114,7 @@ const MySellersOffers = (props) => {
 
     useEffect(() => {
         getSellersOffers();
-    }, [isListingsUpdated, isListingApproved]);
+    }, [isListingsUpdated, isListingApproved, isBuyersOffersUpdated, isSellersOffersUpdated]);
 
 
     const handlePrepareCounteroffer = async (contractId) => {
@@ -198,7 +200,7 @@ const MySellersOffers = (props) => {
                                         </IconButton>
                                     </Tooltip>
                                     
-                                    <CreateCounterofferDialog user={user} isOpen={{open, setOpen}} contractIdPropObj={{contractIdProp, setContractIdProp}}updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
+                                    <CreateCounterofferDialog user={user} isOpen={{open, setOpen}} contractIdPropObj={{contractIdProp, setContractIdProp}} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}}  updateSellersOffersComponent={{isSellersOffersUpdated, setIsSellersOffersUpdated}}/>
 
                                     <Tooltip title="Reject">
                                         <IconButton

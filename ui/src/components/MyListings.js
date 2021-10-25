@@ -141,10 +141,6 @@ const MyListings = (props) => {
                                             }}
                                         />
                                     </IconButton>
-
-                                    {/*}
-                                    <AddListingDialog user={user} isOpen={{open, setOpen}} updateComponent={{isListingsUpdated, setIsListingsUpdated}} />
-                                    */}
                                 </ButtonGroup>
                                 </TableCell>
                             </TableRow>

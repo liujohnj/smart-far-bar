@@ -20,6 +20,9 @@ const CreateOfferDialog = (props) => {
     const adminToken = "Bearer " + process.env.REACT_APP_TOKEN_OLIVIA;
     const { username, userToken } = user;
 
+    const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
+    const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
+
     const [buyerAgencyIdsArray, setBuyerAgencyIdsArray] = useState([]);
     const [buyersArray, setBuyersArray] = useState([]);
     const [buyerAgencyId, setBuyerAgencyId] = useState("");
@@ -184,7 +187,6 @@ const CreateOfferDialog = (props) => {
 
     
     const fetchListingDetails = async (contractId) => {
-        console.log("fetching: ", contractId);
         try {
             const response = await axios({
                 method: "post",
@@ -263,7 +265,7 @@ const CreateOfferDialog = (props) => {
 
     useEffect(() => {
         getMatchingContracts();
-    }, []);
+    }, [isBuyersOffersUpdated, isSellersOffersUpdated]);
 
     const prepareOffer = async () => {
         try {
@@ -332,12 +334,8 @@ const CreateOfferDialog = (props) => {
                         }
                     }
             });
-            /*
-            setName("");
-            setIsBuyer(true);
-            setPropertyAddress("");
-            */
-            //setIsListingsUpdated(!isListingsUpdated); // toggle to re-render parent component
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
@@ -375,7 +373,7 @@ const CreateOfferDialog = (props) => {
                     onChange={handleSellerNameChange}
                 />
 
-                <FormControl fullWidth>
+                <FormControl fullWidth sx={{mt: 3, mb: 2}}>
                     <InputLabel id="demo-simple-select-label">Buyer</InputLabel>
                     <Select
                         labelId="demo-simple-select-label"
@@ -393,25 +391,7 @@ const CreateOfferDialog = (props) => {
                         })}
                         </Select>
                 </FormControl>
-
-                <Typography color="secondary">
-                    {buyerName}
-                </Typography>
-
-                {/*}
-                <TextField
-                    autoFocus
-                    margin="dense"
-                    id="buyerName"
-                    label="Buyer"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    value={buyerName}
-                    onChange={handleBuyerNameChange}
-                />
-                */}
-
+                
                 <TextField
                     autoFocus
                     margin="dense"

@@ -4,6 +4,7 @@ import { returnUserType, returnUserToken, returnUserRole } from './Users';
 import ButtonAppBar from './ButtonAppBar';
 import AgentDashboard from './AgentDashboard';
 import ClientDashboard from './ClientDashboard';
+import { Box } from "@mui/system";
 
 
 const Dashboard = () => {
@@ -39,10 +40,10 @@ const Dashboard = () => {
                 </Typography>
             </div>
 
-            <div>
+            <Box sx={{ mb: 15}}>
                 {userType==="Realtor" && <AgentDashboard user={user} />}
                 {userType==="Client" && <ClientDashboard user={user} />}
-            </div>
+            </Box>
             
         </div>
     )

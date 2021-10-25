@@ -15,15 +15,18 @@ const axios = require('axios');
 
 const MyClients = (props) => {
     const user = props.user;
-    const { isAgencyUpdated } = props.updateComponent;
+    const { isAgencyUpdated, setIsAgencyUpdated } = props.updateComponent;
+    const { isListingApproved, setIsListingApproved } = props.updateApprovedListingsComponent;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
+    const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
+    const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
+    
 
     const { username, userType, userToken } = user;
     const actions = "";
     const [rows, setRows] = useState([]);
     const [isArchived, setIsArchived] = useState(false);
    
-
     const [open, setOpen] = useState(false);
 
     // Uses REST API to get all active contracts matching a given query.
@@ -84,7 +87,7 @@ const MyClients = (props) => {
 
     useEffect(() => {
         getMatchingContracts();
-    }, [isAgencyUpdated, isArchived]);
+    }, [isAgencyUpdated, isArchived, isBuyersOffersUpdated, isSellersOffersUpdated]);
     
 
     const archiveAgencyProposal = async (templateId, contractId, choice) => {
@@ -108,6 +111,8 @@ const MyClients = (props) => {
             });
             console.log("isArchived = ", isArchived);
             setIsArchived(!isArchived);
+            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
+            setIsSellersOffersUpdated(!isSellersOffersUpdated);
         } catch (err) {
             console.log(err);
         }
@@ -181,7 +186,7 @@ const MyClients = (props) => {
                                         />
                                     </IconButton>
 
-                                    <AddListingDialog user={user} isOpen={{open, setOpen}} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} />
+                                    <AddListingDialog user={user} isOpen={{open, setOpen}} updateListingsComponent={{isListingsUpdated, setIsListingsUpdated}} updateApprovedListingsComponent={{isListingApproved, setIsListingApproved}} updateSellersOffersComponent={{isSellersOffersUpdated, setIsSellersOffersUpdated}} updateBuyersOffersComponent={{isBuyersOffersUpdated, setIsBuyersOffersUpdated}} />
                                     
                                     <IconButton
                                         disabled={row.agencyStatus === "active"}
