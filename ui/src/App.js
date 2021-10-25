@@ -53,7 +53,7 @@ const App = (props) => {
                             value={value}
                             onChange={(event, newValue) => {
                                 setValue(newValue);
-                            }}
+                         }}
                             >
                             <BottomNavigationAction label="info" icon={<InfoIcon />} />
                             {open && <InfoDialog openProp={{open, setOpen}} /> }
