@@ -2,180 +2,579 @@ module Main where
 import Daml.Script
 import DA.Date
 
-type AsIsOfferId = ContractId AsIsOffer
-type AsIsCounterofferId = ContractId AsIsCounteroffer
-type AsIsContractId = ContractId AsIsContract
+type Thumbnail = Text   -- Base64
 
-data OtherTerms = OtherTerms
+data Parties = Parties
     with
-        closingDate : Date
-        inspectionPeriod : Int
+        seller : Party
+        buyer : Party
     deriving (Eq, Show)
 
--- #############################################################
--- #                Initiate & Accept Model                    #
--- #############################################################
-
--- Buyer's Offer
-template AsIsOffer
+data Property = Property
     with
-        -- Parties
-        sellerInOffer : Party
-        buyerInOffer : Party
+        streetAddress : Text
+        --city : Text
+        --state: Text
+        --zipCode : Text
+        --county : Text
+        --taxId : Text
+        --legalDescr : Text
+        --personalProperty : Text
+        --excludedItems : Text
+        --thumbnail : Thumbnail
+    deriving (Eq, Show)
+
+data EscrowAgent = EscrowAgent
+    with
+        name : Text
+        address : Text
+        phone : Text
+        email : Text
+        fax : Text
+    deriving (Eq, Show)
         
-        -- Property description
-        propertyInOffer : Text
+data Terms = Terms
+    with
+        purchasePrice : Decimal
+        --initialDeposit : Decimal
+        --initialDepositTime : Int
+        --balanceToClose : Decimal
+        --timeForAcceptance : Date
+        --closingDate : Date
+        --isAssignable : Text
+        --titleEvidenceDeadline : Int
+        --whoDesignatesClosingAgent : Text
+        --inspectionPeriod : Int
+        --additionalTerms : Text
+    deriving (Eq, Show)
 
-        -- Principal terms of offer
-        purchasePriceInOffer : Decimal
-
-        -- Other ancillary terms of offer (see above for contents)
-        otherTermsInOffer : OtherTerms
-
-        -- Checkboxes re: Seller's response to Buyer's offer
-        sellerRejectsOfferCheckbox : Bool
-        sellerCountersOfferCheckbox : Bool
-
+template SellerAgencyProposal
+    with
+        party : Party
+        agent : Party
+        propertyAddress : Text
+        templateType : Text
+        isApproved : Bool
     where
-        signatory buyerInOffer
+        signatory agent
+        observer party
 
-        -- What Buyer can do
-        controller buyerInOffer can
+        controller party can
+                AcceptSellerAgency: ContractId SellerAgencyCreated
+                    do
+                        create SellerAgencyCreated with
+                            party
+                            agent
+                            propertyAddress
+                            templateType = "SELLER_AGENCY"
+                            isApproved = True
+
+                -- Reject agency proposal
+                RejectSellerAgency : ()
+                    do return ()
+
+        controller agent can
+            WithdrawSellerAgency : ()
+                do return ()
+
+template SellerAgencyCreated
+    with
+        party : Party
+        agent : Party
+        propertyAddress : Text
+        templateType : Text
+        isApproved : Bool
+    where
+        signatory party, agent
     
-            -- Create original Buyer's offer
-            MakeBuyersOffer : AsIsOfferId
-                do
-                    create this with
-                        sellerRejectsOfferCheckbox = False
-                        sellerCountersOfferCheckbox = False
-    
-            -- Revise Buyer's existing offer
-            ReviseBuyersOffer : AsIsOfferId
+        controller agent can
+            nonconsuming PrepareListing: ContractId PreparedListing
                 with
-                    revisedPurchasePrice : Decimal
+                    property : Property
+                    --escrowAgent : EscrowAgent
+                    listPrice : Decimal
                 do
-                    create this with
-                        purchasePriceInOffer = revisedPurchasePrice
+                    create PreparedListing with
+                        seller = party
+                        property
+                        --escrowAgent
+                        listPrice
+                        sellerAgent = agent
+                        templateType = "LISTING"
+                        isApproved = False
+
+template PreparedListing
+    with
+        seller : Party
+        property : Property
+        --escrowAgent : EscrowAgent
+        listPrice : Decimal
+        sellerAgent : Party
+        templateType : Text
+        isApproved : Bool
+    where
+        signatory sellerAgent
+    
+        controller seller can
+            ApproveListing: ContractId ApprovedListing
+                with
+                    admin : Party
+                do
+                    create ApprovedListing with
+                        seller
+                        property
+                        --escrowAgent
+                        listPrice
+                        sellerAgent
+                        templateType = "LISTING"
+                        isApproved = True
+                        admin
+
+template ApprovedListing
+    with
+        seller : Party
+        property : Property
+        --escrowAgent : EscrowAgent
+        listPrice : Decimal
+        sellerAgent : Party
+        templateType : Text
+        isApproved : Bool
+        admin : Party
+    where
+        signatory seller, sellerAgent
+        observer admin
+
+template BuyerAgencyProposal
+    with
+        party : Party
+        agent : Party
+        propertyAddress: Text
+        templateType : Text
+        isApproved : Bool
+    where
+        signatory agent
+        observer party
+
+        controller party can
+            AcceptBuyerAgency: ContractId BuyerAgencyCreated
+                do
+                    create BuyerAgencyCreated with
+                        party
+                        agent
+                        propertyAddress = "N/A"
+                        templateType = "BUYER_AGENCY"
+                        isApproved = True
         
-        -- What Seller can do
-        controller sellerInOffer can
+             -- Reject agency proposal
+            RejectBuyerAgency : ()
+                do return ()
 
-            -- Reject Buyer's offer
-            RejectBuyersOffer : AsIsOfferId
+        controller agent can
+            WithdrawBuyerAgency : ()
+                do return ()
+
+template BuyerAgencyCreated
+    with
+        party : Party
+        agent : Party
+        propertyAddress: Text
+        templateType : Text
+        isApproved : Bool
+    where
+        signatory party, agent
+    
+        controller agent can
+            nonconsuming PrepareOffer: ContractId PreparedOffer
+                with
+                    parties : Parties
+                    property : Property
+                    --escrowAgent : EscrowAgent
+                    terms : Terms
+                    sellerAgent : Party
+                do
+                    create PreparedOffer with
+                        parties
+                        property
+                        --escrowAgent
+                        terms
+                        sellerAgent
+                        buyerAgent = agent
+                        templateType = "OFFER"
+                        isApproved = False
+
+template PreparedOffer
+    with
+        parties : Parties
+        property : Property
+        --escrowAgent : EscrowAgent
+        terms : Terms
+        sellerAgent : Party
+        buyerAgent : Party
+        templateType : Text
+        isApproved : Bool
+    where
+        signatory buyerAgent
+
+        controller parties.buyer can
+            ApproveOffer: ContractId TenderedOffer
+                do
+                    create TenderedOffer with
+                        parties
+                        property
+                        --escrowAgent
+                        terms
+                        sellerAgent
+                        buyerAgent
+                        templateType = "OFFER"
+                        isApproved = True
+                        isCountered = False
+                        isRejected = False
+
+template TenderedOffer
+    with
+        parties : Parties
+        property : Property
+        --escrowAgent : EscrowAgent
+        terms : Terms
+        sellerAgent : Party
+        buyerAgent : Party
+        templateType : Text
+        isApproved : Bool
+        isCountered : Bool
+        isRejected : Bool
+    where
+        signatory parties.buyer
+        observer sellerAgent, buyerAgent
+
+        controller parties.seller can
+            AcceptOffer : ContractId ExecutedContract
+                with
+                    --escrowAgentName : Party
+                    admin : Party
+                do
+                    create ExecutedContract with
+                        parties
+                        property
+                        --escrowAgent
+                        terms
+                        sellerAgent
+                        buyerAgent
+                        --escrowAgentName
+                        templateType = "CONTRACT"
+                        admin
+
+            RejectOffer : ContractId TenderedOffer
                 do
                     create this with
-                        sellerRejectsOfferCheckbox = True
-
-            -- Create counteroffer to Buyer's offer
-            CounterBuyersOffer : AsIsCounterofferId
-                with
-                    sellersCounterPurchasePrice : Decimal
-                do
-                    create AsIsCounteroffer with
-                        sellerInCounteroffer = sellerInOffer
-                        buyerInCounteroffer = buyerInOffer
-                        propertyInCounteroffer = propertyInOffer
-                        sellerRejectsOfferCheckbox = False
-                        sellerCountersOfferCheckbox = True
-                        purchasePriceInCounteroffer = sellersCounterPurchasePrice
-                        otherTermsInCounteroffer = otherTermsInOffer
+                        isRejected = True
             
-            -- Accept Buyer's offer
-            AcceptBuyersOffer : AsIsContractId
+            IndicateCounteroffer : ContractId TenderedOffer
                 do
-                    create AsIsContract with
-                        sellerInContract = sellerInOffer
-                        buyerInContract = buyerInOffer
-                        propertyInContract = propertyInOffer
-                        purchasePriceInContract = purchasePriceInOffer
+                    create this with
+                        isCountered = True
+            
+            ArchiveTenderedOffer : ()
+                do return ()
 
-
--- Seller's Counteroffer
-template AsIsCounteroffer
+template ExecutedContract
     with
-        sellerInCounteroffer : Party
-        buyerInCounteroffer : Party
-        propertyInCounteroffer : Text
-        purchasePriceInCounteroffer : Decimal
-        otherTermsInCounteroffer : OtherTerms
-        sellerRejectsOfferCheckbox : Bool
-        sellerCountersOfferCheckbox : Bool
+        parties : Parties
+        property : Property
+        --escrowAgent : EscrowAgent
+        terms : Terms
+        sellerAgent : Party
+        buyerAgent : Party
+        --escrowAgentName : Party
+        templateType : Text
+        admin : Party
     where
-        signatory sellerInCounteroffer
+        signatory parties.seller, parties.buyer
+        observer sellerAgent, buyerAgent, admin--, escrowAgentName
 
-        -- what Buyer can do
-        controller buyerInCounteroffer can
-
-            -- Accept Seller's counteroffer
-            AcceptSellersCounteroffer : AsIsContractId
-                do
-                    create AsIsContract with
-                        sellerInContract = sellerInCounteroffer
-                        buyerInContract = buyerInCounteroffer
-                        propertyInContract = propertyInCounteroffer
-                        purchasePriceInContract = purchasePriceInCounteroffer
-
-            -- Counter Seller's counteroffer (by creating new offer)
-            CounterSellersCounteroffer : AsIsOfferId
-                with
-                     buyersCounterPurchasePrice : Decimal
-                     --buyersCounterOtherTerms : OtherTerms
-                do
-                    create AsIsOffer with
-                        sellerInOffer = sellerInCounteroffer
-                        buyerInOffer = buyerInCounteroffer
-                        propertyInOffer = propertyInCounteroffer
-                        purchasePriceInOffer = buyersCounterPurchasePrice
-                        otherTermsInOffer = otherTermsInCounteroffer
-                        sellerRejectsOfferCheckbox = False
-                        sellerCountersOfferCheckbox = False
-
-            -- Reject Buyer's offer
-            RejectSellersCounteroffer : AsIsCounterofferId
-                do
-                    create this
-
--- Effective Contract
-template AsIsContract
+-- To be newly created by sellerAgent to maintain visibility between
+--  only sellerAgent and seller
+template PreparedCounteroffer
     with
-        sellerInContract : Party
-        buyerInContract : Party
-        propertyInContract : Text
-        purchasePriceInContract : Decimal
+        parties : Parties
+        property : Property
+        --escrowAgent : EscrowAgent
+        terms : Terms
+        sellerAgent : Party
+        buyerAgent : Party
+        templateType : Text
+        isApproved : Bool
     where
-        signatory sellerInContract, buyerInContract
+        signatory sellerAgent
 
--- ******* OFFER - COUNTER - COUNTER COUNTER - REJECT ********
-setup : Script AsIsOfferId
+        controller parties.seller can
+                ApproveCounteroffer : ContractId TenderedCounteroffer
+                    do
+                        create TenderedCounteroffer with
+                            parties
+                            property
+                            --escrowAgent
+                            terms
+                            sellerAgent
+                            buyerAgent
+                            templateType = "COUNTEROFFER"
+                            isApproved = True
+                            isCountered = False
+                            isRejected = False
+
+template TenderedCounteroffer
+    with
+        parties : Parties
+        property : Property
+        --escrowAgent : EscrowAgent
+        terms : Terms
+        sellerAgent : Party
+        buyerAgent : Party
+        templateType : Text
+        isApproved : Bool
+        isCountered : Bool
+        isRejected : Bool
+    where
+        signatory parties.seller
+        observer buyerAgent, sellerAgent
+
+        controller parties.buyer can
+                AcceptCounteroffer : ContractId ExecutedContract
+                    with
+                        --escrowAgentName : Party
+                        admin : Party
+                    do
+                        create ExecutedContract with
+                            parties
+                            property
+                            --escrowAgent
+                            terms
+                            sellerAgent
+                            buyerAgent
+                            --escrowAgentName
+                            templateType = "CONTRACT"
+                            admin
+
+                RejectCounteroffer : ContractId TenderedCounteroffer
+                    do
+                        create this with
+                            isRejected = True
+                            templateType = "COUNTEROFFER"
+
+                IndicateCounterToCounteroffer : ContractId TenderedCounteroffer
+                    do
+                        create this with
+                            isCountered = True
+                            templateType = "COUNTEROFFER"
+
+                ArchiveTenderedCounteroffer : ()
+                    do return ()
+
+
 setup = script do
-    -- Assign seller and buyer parties
-    alice_seller <- allocateParty "Alice"
-    bob_buyer <- allocateParty "Bob"
+    alice <- allocateParty "Alice"  -- seller
+    bob <- allocateParty "Bob"      -- buyer
+    carol <- allocateParty "Carol"  -- buyerAgent
+    david <- allocateParty "David"  -- sellerAgent
+    faythe <- allocateParty "Faythe" -- escrowAgentName
+    olivia <- allocateParty "Olivia" -- admin
 
-    -- Buyer makes offer of $100,000
-    bobOffer1 <- submit bob_buyer do
+    let
+        property = Property with
+            streetAddress = "123 Main St"
+            --city = "Orlando"
+            --state = "FL"
+            --zipCode = "33701"
+            --county = "Orange"
+            --taxId = "1234567890"
+            --legalDescr = "Lot 1, Mickey Mouse Homes Subdivision"
+            --personalProperty = "None"
+            --excludedItems = "None"
+            --thumbnail = ""
 
-        createCmd AsIsOffer with
-            buyerInOffer = bob_buyer
-            sellerInOffer = alice_seller
-            propertyInOffer = "123 Main St"
-            purchasePriceInOffer = 100000.00
-            otherTermsInOffer = OtherTerms with
-                closingDate = date 2021 Oct 31
-                inspectionPeriod = 10
-            sellerRejectsOfferCheckbox = False
-            sellerCountersOfferCheckbox = False
+    let
+        escrowAgent = EscrowAgent with
+            name = "Faythe"
+            address = "456 Closing Ln., Anytown, Florida 123456"
+            phone = "(123) 456-7890"
+            email = "faythe@titlecompany.com"
+            fax = "(123) 456-7891"
+
+    offer03 <- submit david do
+        createCmd SellerAgencyProposal with
+            party = alice
+            agent = david
+            propertyAddress = "123 Main St"
+            templateType = "SELLER_AGENCY"
+            isApproved = False
+
+    offer04 <- submit alice do
+        exerciseCmd offer03 AcceptSellerAgency
+
+    offer05 <- submit david do
+        exerciseCmd offer04 PrepareListing with
+            property
+            --escrowAgent
+            listPrice = 100000.00
+
+    offer06 <- submit alice do
+        exerciseCmd offer05 ApproveListing with
+            admin = olivia
+
+    offer07 <- submit carol do
+        createCmd BuyerAgencyProposal with
+            party = bob
+            agent = carol
+            propertyAddress = "N/A"
+            templateType = "BUYER_AGENCY"
+            isApproved = False
+ 
+    offer08 <- submit bob do
+        exerciseCmd offer07 AcceptBuyerAgency
+
+    offer10 <- submit carol do
+        let
+            parties = Parties with
+                seller = alice
+                buyer = bob
+        let
+            terms = Terms with
+                purchasePrice = 80000.00
+                --initialDeposit = 5000.00
+                --initialDepositTime = 3
+                --balanceToClose = 75000.00
+                --timeForAcceptance = date 2021 Oct 21
+                --closingDate = date 2021 Nov 15
+                --isAssignable = "No"
+                --titleEvidenceDeadline = 5
+                --whoDesignatesClosingAgent = "Seller"
+                --inspectionPeriod = 10
+                --additionalTerms = ""
     
-    -- Seller counters offer
-    aliceCountersOffer <- submit alice_seller do
-        exerciseCmd bobOffer1 CounterBuyersOffer with
-            sellersCounterPurchasePrice = 120000.00
+        exerciseCmd offer08 PrepareOffer with
+            parties
+            property
+            --escrowAgent
+            terms
+            sellerAgent = david
 
-    -- Buyer counters Alice's counter
-    bobCountersCounter <- submit bob_buyer do
-        exerciseCmd aliceCountersOffer CounterSellersCounteroffer with
-            buyersCounterPurchasePrice = 110000.00
+    offer20 <- submit bob do
+        exerciseCmd offer10 ApproveOffer
 
-    -- Seller rejects buyer's counter-counteroffer
-    submit alice_seller do
-        exerciseCmd bobCountersCounter RejectBuyersOffer
+    offer25 <- submit alice do
+        exerciseCmd offer20 IndicateCounteroffer
+ 
+    offer27 <- submit alice do
+        exerciseCmd offer25 ArchiveTenderedOffer
+    
+    offer30 <- submit david do
+        let
+            parties = Parties with
+                seller = alice
+                buyer = bob
+
+            terms = Terms with
+                purchasePrice = 90000.00
+                --initialDeposit = 5000.00
+                --initialDepositTime = 3
+                --balanceToClose = 85000.00
+                --timeForAcceptance = date 2021 Oct 21
+                --closingDate = date 2021 Nov 15
+                --isAssignable = "No"
+                --titleEvidenceDeadline = 5
+                --whoDesignatesClosingAgent = "Seller"
+                --inspectionPeriod = 10
+                --additionalTerms = ""
+    
+        createCmd PreparedCounteroffer with
+            parties
+            property
+            --escrowAgent
+            terms
+            sellerAgent = david
+            buyerAgent = carol
+            templateType = "COUNTEROFFER"
+            isApproved = False
+            
+    offer40 <- submit alice do
+        exerciseCmd offer30 ApproveCounteroffer
+
+    offer46 <- submit bob do
+        exerciseCmd offer40 IndicateCounterToCounteroffer
+
+    offer47 <- submit bob do
+        exerciseCmd offer46 ArchiveTenderedCounteroffer
+
+    offer50 <- submit carol do
+        let
+            parties = Parties with
+                seller = alice
+                buyer = bob
+
+            terms = Terms with
+                purchasePrice = 87500.00
+                --initialDeposit = 5000.00
+                --initialDepositTime = 3
+                --balanceToClose = 82500.00
+                --timeForAcceptance = date 2021 Oct 21
+                --closingDate = date 2021 Nov 15
+                --isAssignable = "No"
+                --titleEvidenceDeadline = 5
+                --whoDesignatesClosingAgent = "Seller"
+                --inspectionPeriod = 10
+                --additionalTerms = ""
+
+        createCmd PreparedOffer with
+            parties
+            property
+            --escrowAgent
+            terms
+            sellerAgent = david
+            buyerAgent = carol
+            templateType = "OFFER"
+            isApproved = False
+
+    offer55 <- submit bob do
+        exerciseCmd offer50 ApproveOffer
+
+    offer60 <- submit alice do
+        exerciseCmd offer55 IndicateCounteroffer
+
+    offer67 <- submit alice do
+        exerciseCmd offer60 ArchiveTenderedOffer
+
+    offer70 <- submit david do
+        let
+            parties = Parties with
+                seller = alice
+                buyer = bob
+
+            terms = Terms with
+                purchasePrice = 89250.00
+                --initialDeposit = 5000.00
+                --initialDepositTime = 3
+                --balanceToClose = 85000.00
+                --timeForAcceptance = date 2021 Oct 21
+                --closingDate = date 2021 Nov 15
+                --isAssignable = "No"
+                --titleEvidenceDeadline = 5
+                --whoDesignatesClosingAgent = "Seller"
+                --inspectionPeriod = 10
+                --additionalTerms = ""
+    
+        createCmd PreparedCounteroffer with
+            parties
+            property
+            --escrowAgent
+            terms
+            sellerAgent = david
+            buyerAgent = carol
+            templateType = "COUNTEROFFER"
+            isApproved = False
+            
+    offer75 <- submit alice do
+        exerciseCmd offer70 ApproveCounteroffer
+
+    submit bob do
+        exerciseCmd offer75 AcceptCounteroffer with
+            --escrowAgentName = faythe
+            admin = olivia

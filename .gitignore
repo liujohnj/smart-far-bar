@@ -1,1 +1,4 @@
 /.daml
+.env
+ui/.env
+ui/node_modules
