@@ -173,7 +173,8 @@ const BuyersOffers = (props) => {
                         "contractId": contractId,
                         "choice": "AcceptCounteroffer",
                         "argument": {
-                            "admin": "Olivia"
+                            "escrowAgentName": "Olivia", //TO-DO: Retrieve from contractId
+                            "admin": "Faythe"
                         },
                     }
             });
