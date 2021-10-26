@@ -29,6 +29,12 @@ const SellersOffers = (props) => {
     const [open, setOpen] = useState(false);
     const [contractIdProp, setContractIdProp] = useState("");
 
+    const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+    })
+
     // Uses REST API to get all active contracts matching a given query.
     //   Fetches all agency-related contracts.
     const getSellersOffers = async () => {
@@ -79,7 +85,7 @@ const SellersOffers = (props) => {
                     const contractId = ids[i];
                     const sellerAgent = sellerAgents[i];
                     const streetAddress = streetAddresses[i];
-                    const offeredPrice = offeredPrices[i];
+                    const offeredPrice = formatter.format(offeredPrices[i]);
                     const offerer = offerers[i];
                     const template = types[i];
                     const approval = approvals[i];
@@ -97,6 +103,8 @@ const SellersOffers = (props) => {
                         status = "received";
                     } else if (template === "COUNTEROFFER" && approval === false) {
                         status = "pending signoff";
+                    } else if (template === "COUNTEROFFER" && rejection === true) {
+                        status = "rejected";
                     } else if (template === "COUNTEROFFER" && approval === true && counter === false) {
                         status = "tendered";
                     } else if (template === "COUNTEROFFER" && approval === true && counter === true) {

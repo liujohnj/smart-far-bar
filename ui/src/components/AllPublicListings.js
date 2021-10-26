@@ -12,6 +12,12 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import CreateOfferDialog from './CreateOfferDialog';
 const axios = require('axios');
 
+const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2
+})
+
 const AllPublicListings = (props) => {
     const user = props.user;
     const { username, userType } = user;
@@ -68,7 +74,7 @@ const AllPublicListings = (props) => {
                     const contractId = ids[i];
                     const sellerAgent = (sellerAgents[i]);
                     const streetAddress = streetAddresses[i];
-                    const listPrice = listPrices[i];
+                    const listPrice = formatter.format(listPrices[i]);
                     const listingStatus = (approvals[i] === true ? "active" : "pending signoff");
 
                     tempRows.push({thumbnail, contractId, sellerAgent, streetAddress, listPrice, listingStatus});

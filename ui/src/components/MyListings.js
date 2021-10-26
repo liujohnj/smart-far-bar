@@ -19,6 +19,12 @@ const MyListings = (props) => {
     const [rows, setRows] = useState([]);
     const [open, setOpen] = useState(false);
 
+    const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+    })
+
     // Uses REST API to get all active contracts matching a given query.
     //   Fetches all agency-related contracts.
     const getMatchingContracts = async () => {
@@ -62,7 +68,7 @@ const MyListings = (props) => {
                     const contractId = ids[i];
                     const seller = (sellers[i]);
                     const streetAddress = streetAddresses[i];
-                    const listPrice = listPrices[i];
+                    const listPrice = formatter.format(listPrices[i]);
                     const listingStatus = (approvals[i] === true ? "active" : "pending signoff");
 
                     tempRows.push({thumbnail, contractId, seller, streetAddress, listPrice, listingStatus});
