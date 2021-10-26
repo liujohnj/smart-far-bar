@@ -4,12 +4,16 @@ Presentation YouTube video link: https://youtu.be/r-KumpMmjaQ
 
 ## Installation instructions
 Clone GitHub repo.
+
 Follow instructions at Daml.com to set up environment.
+
 In one terminal window, from the project directory start the Daml ledger:
 - daml start
+
 In a second terminal window, change directories and launch the front end:
 - cd ui
 - npm start
+
 From a web browser, navigate to http://localhost:3000
 
 ## Inspiration
