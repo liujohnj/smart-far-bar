@@ -12,13 +12,6 @@ In a second terminal window, change directories and launch the front end:
 - npm start
 From a web browser, navigate to http://localhost:3000
 
-## Screenshots
-<img src="https://i.ibb.co/qmf6hNN/smart-far-bar.gif" title="Slide Show (animated GIF)" alt="presentation"></a>
-<img src="https://i.ibb.co/Nm4dtLL/screenshot0.png" title="Login screen" alt="login"></a>
-<img src="https://i.ibb.co/nDgGt7N/screenshot1.png" title="Client dashboard" alt="presentation"></a>
-<img src="https://i.ibb.co/2N6H2J3/screenshot2.png" title="Realtor dashboard" alt="presentation"></a>
-<img src="https://i.ibb.co/0C0fVLx/screenshot3.png" title="Main.daml file in VS Code" alt="main.daml"></a>
-
 ## Inspiration
 Coming into this hackathon as someone completely new to smart contracts and blockchain concepts generally, it quickly dawned on me that it would be wise for my project to be in a domain with which I was familiar.  (Unfortunately, this ruled out financial services, insurance, and healthcare.) Having incorrectly made a gross oversimplification of what I assumed smart contracts were, my first thought was to create an application for real estate transactions. That was short-lived, however, as I started considering other domains that would benefit from more automated processes.
 
@@ -58,3 +51,15 @@ One would think, then, that every developer would want to dive into this space. 
 Drawn to this space, I plan to continue developing the application and learn as much as I can about smart contracts and blockchain technologies. My next step is to deploy it on Daml Hub and make it live. I even have acquired the domain name of www.smartfarbar.com. The next iteration will expand on features to include enforcing deadlines and continuing the workflow from contract execution to the closing table (although I can see tables disappearing altogether in the near future).
 
 I am very grateful to Digital Asset and SE2 for sponsoring this hackathon.  Without them, I may have never come to appreciate what this space offers and technologies like Daml that make them practical and easy - or perhaps more accurately - _easier_ to put into action.
+
+## Screenshots
+
+<img src="https://i.ibb.co/qmf6hNN/smart-far-bar.gif" title="Slide Show (animated GIF)" alt="presentation"></a>
+
+<img src="https://i.ibb.co/Nm4dtLL/screenshot0.png" title="Login screen" alt="login"></a>
+
+<img src="https://i.ibb.co/nDgGt7N/screenshot1.png" title="Client dashboard" alt="presentation"></a>
+
+<img src="https://i.ibb.co/2N6H2J3/screenshot2.png" title="Realtor dashboard" alt="presentation"></a>
+
+<img src="https://i.ibb.co/0C0fVLx/screenshot3.png" title="Main.daml file in VS Code" alt="main.daml"></a>
