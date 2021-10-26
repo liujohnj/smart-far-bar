@@ -14,7 +14,6 @@ const axios = require('axios');
 
 const CreateOfferDialog = (props) => {
     const user = props.user;
-    //const contractId = props.contractId;
     const { open, setOpen } = props.isOpen;
     const { contractIdProp } = props.contractIdPropObj;
     const adminToken = "Bearer " + process.env.REACT_APP_TOKEN_OLIVIA;
@@ -45,16 +44,16 @@ const CreateOfferDialog = (props) => {
     const [escrowAgentEmail, setEscrowAgentEmail] = useState("");
     const [escrowAgentFax, setEscrowAgentFax] = useState("");
     const [purchasePrice, setPurchasePrice] = useState("");
-    const [initialDeposit, setInitialDeposit] = useState("");
-    const [initialDepositTime, setInitialDepositTime] = useState("");
+    const [initialDeposit, setInitialDeposit] = useState("0");
+    const [initialDepositTime, setInitialDepositTime] = useState("3");
     const [balanceToClose, setBalanceToClose] = useState("");
     const [timeForAcceptance, setTimeForAcceptance] = useState("");
     const [closingDate, setClosingDate] = useState("");
-    const [isAssignable, setIsAssignable] = useState("");
-    const [titleEvidenceDeadline, setTitleEvidenceDeadline] = useState("");
-    const [whoDesignatesClosingAgent, setWhoDesignatesClosingAgent] = useState("");
-    const [inspectionPeriod, setInspectionPeriod] = useState("");
-    const [additionalTerms, setAdditionalTerms] = useState("");
+    const [isAssignable, setIsAssignable] = useState("No");
+    const [titleEvidenceDeadline, setTitleEvidenceDeadline] = useState("5");
+    const [whoDesignatesClosingAgent, setWhoDesignatesClosingAgent] = useState("Seller");
+    const [inspectionPeriod, setInspectionPeriod] = useState("10");
+    const [additionalTerms, setAdditionalTerms] = useState("None");
     const [sellerAgent, setSellerAgent] = useState("");
     
 
@@ -204,7 +203,6 @@ const CreateOfferDialog = (props) => {
             });
             const obj = response.data.result.payload;
             setSellerName(obj.seller);
-            setPurchasePrice(obj.listPrice);
             setStreetAddress(obj.property.streetAddress);
             setCity(obj.property.city);
             setState(obj.property.state);
@@ -215,6 +213,15 @@ const CreateOfferDialog = (props) => {
             setPersonalProperty(obj.property.personalProperty);
             setExcludedItems(obj.property.excludedItems);
             setThumbnail(obj.property.thumbnail);
+            setEscrowAgentName(obj.escrowAgent.name);
+            setEscrowAgentAddress(obj.escrowAgent.address);
+            setEscrowAgentPhone(obj.escrowAgent.phone);
+            setEscrowAgentEmail(obj.escrowAgent.email);
+            setEscrowAgentFax(obj.escrowAgent.fax);
+            setSellerAgent(obj.sellerAgent);
+
+            setPurchasePrice(obj.listPrice);
+            setBalanceToClose(obj.listPrice);
 
             console.log("OBJECT :", obj);
 
@@ -223,7 +230,9 @@ const CreateOfferDialog = (props) => {
         }
     }
 
-    // Fetch all buyer agency contracts to excercise choice
+    // Fetch all buyer agency contracts to excercise choice.
+    // Dialog form includes select option to choose appropriate
+    //   Buyer.
     const getMatchingContracts = async () => {
         try {
             const response = await axios({
@@ -290,7 +299,6 @@ const CreateOfferDialog = (props) => {
                             },
                             "property": {
                                 "streetAddress": streetAddress,
-                                /*
                                 "city": city,
                                 "state": state,
                                 "zipCode": zipCode,
@@ -300,9 +308,7 @@ const CreateOfferDialog = (props) => {
                                 "personalProperty": personalProperty,
                                 "excludedItems": excludedItems,
                                 "thumbnail": thumbnail
-                                */
                             },
-                            /*
                             "escrowAgent": {
                                 "name": escrowAgentName,
                                 "address": escrowAgentAddress,
@@ -310,10 +316,8 @@ const CreateOfferDialog = (props) => {
                                 "email": escrowAgentEmail,
                                 "fax": escrowAgentFax
                             },
-                            */
                             "terms": {
                                 "purchasePrice": purchasePrice,
-                            /*
                                 "initialDeposit": initialDeposit,
                                 "initialDepositTime": initialDepositTime,
                                 "balanceToClose": balanceToClose,
@@ -324,13 +328,12 @@ const CreateOfferDialog = (props) => {
                                 "whoDesignatesClosingAgent": whoDesignatesClosingAgent,
                                 "inspectionPeriod": inspectionPeriod,
                                 "additionalTerms": additionalTerms
-                            */
                             },
                             "sellerAgent": sellerAgent,
 
-                            //"buyerAgent": buyerAgentName,
-                            //"templateType": "OFFER",
-                            //"isApproved": false,        
+                            "buyerAgent": username,
+                            "templateType": "OFFER",
+                            "isApproved": false,        
                         }
                     }
             });
@@ -351,15 +354,12 @@ const CreateOfferDialog = (props) => {
             <Dialog open={open} onClose={handleCancel}>
             <DialogTitle>Create New Offer</DialogTitle>
             <DialogContent>
-
-                
-                <Button onClick={() => fetchListingDetails(contractIdProp)}>
-                    Auto-populate
+                <Button color="primary" variant="outlined" sx={{ml: 0, mb: 4, mt: 1}} onClick={() => fetchListingDetails(contractIdProp)}>
+                    Auto-populate from Listing
                 </Button>
                 
-
-                <Typography>
-                    Party Information
+                <Typography variant="subtitle1" color="primary">
+                    Parties Info
                 </Typography>
                 <TextField
                     autoFocus
@@ -392,6 +392,10 @@ const CreateOfferDialog = (props) => {
                         </Select>
                 </FormControl>
                 
+                <Typography variant="subtitle1" color="primary" sx={{mt: 3}}>
+                    Property Details
+                </Typography>
+
                 <TextField
                     autoFocus
                     margin="dense"
@@ -512,6 +516,10 @@ const CreateOfferDialog = (props) => {
                     onChange={handleThumbnailChange}
                 />
 
+                <Typography variant="subtitle1" color="primary" sx={{mt: 3}}>
+                    Escrow Agent Details
+                </Typography>
+
                 <TextField
                     autoFocus
                     margin="dense"
@@ -573,6 +581,10 @@ const CreateOfferDialog = (props) => {
                     onChange={handleEscrowAgentFaxChange}
                 />
 
+                <Typography variant="subtitle1" color="primary" sx={{mt: 3}}>
+                    Offer Terms
+                </Typography>
+
                 <TextField
                     autoFocus
                     margin="dense"
@@ -625,7 +637,7 @@ const CreateOfferDialog = (props) => {
                     autoFocus
                     margin="dense"
                     id="timeForAcceptance"
-                    label="Time for Acceptance"
+                    label="Time for Acceptance (date)"
                     type="text"
                     fullWidth
                     variant="standard"
@@ -637,7 +649,7 @@ const CreateOfferDialog = (props) => {
                     autoFocus
                     margin="dense"
                     id="closingDate"
-                    label="Closing Date"
+                    label="Closing Date (date)"
                     type="text"
                     fullWidth
                     variant="standard"
@@ -661,7 +673,7 @@ const CreateOfferDialog = (props) => {
                     autoFocus
                     margin="dense"
                     id="titleEvidenceDeadline"
-                    label="Title evidence deadline"
+                    label="Title evidence deadline (# days)"
                     type="text"
                     fullWidth
                     variant="standard"
@@ -685,7 +697,7 @@ const CreateOfferDialog = (props) => {
                     autoFocus
                     margin="dense"
                     id="inspectionPeriod"
-                    label="Inspection Period"
+                    label="Inspection Period (# days)"
                     type="text"
                     fullWidth
                     variant="standard"
@@ -704,7 +716,9 @@ const CreateOfferDialog = (props) => {
                     value={additionalTerms}
                     onChange={handleAdditionalTermsChange}
                 />
-
+                <Typography variant="subtitle1" color="primary" sx={{mt: 3}}>
+                    Seller Agent Info
+                </Typography>
                 <TextField
                     autoFocus
                     margin="dense"

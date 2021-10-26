@@ -206,6 +206,22 @@ const CreateCounterToCounterofferDialog = (props) => {
                 setPersonalProperty(obj.property.personalProperty);
                 setExcludedItems(obj.property.excludedItems);
                 setThumbnail(obj.property.thumbnail);
+                setEscrowAgentName(obj.escrowAgent.name);
+                setEscrowAgentAddress(obj.escrowAgent.address);
+                setEscrowAgentPhone(obj.escrowAgent.phone);
+                setEscrowAgentEmail(obj.escrowAgent.email);
+                setEscrowAgentFax(obj.escrowAgent.fax);
+                setPurchasePrice(obj.terms.purchasePrice);
+                setInitialDeposit(obj.terms.initialDeposit);
+                setInitialDepositTime(obj.terms.initialDepositTime);
+                setBalanceToClose(obj.terms.balanceToClose);
+                setTimeForAcceptance(obj.terms.timeForAcceptance);
+                setClosingDate(obj.terms.closingDate);
+                setIsAssignable(obj.terms.isAssignable);
+                setTitleEvidenceDeadline(obj.terms.titleEvidenceDeadline);
+                setWhoDesignatesClosingAgent(obj.terms.whoDesignatesClosingAgent);
+                setInspectionPeriod(obj.terms.inspectionPeriod);
+                setAdditionalTerms(obj.terms.additionalTerms);
                 setBuyerAgent(obj.buyerAgent);
                 setSellerAgent(obj.sellerAgent);
             }
@@ -240,7 +256,6 @@ const CreateCounterToCounterofferDialog = (props) => {
                             },
                             "property": {
                                 "streetAddress": streetAddress,
-                                /*
                                 "city": city,
                                 "state": state,
                                 "zipCode": zipCode,
@@ -250,9 +265,7 @@ const CreateCounterToCounterofferDialog = (props) => {
                                 "personalProperty": personalProperty,
                                 "excludedItems": excludedItems,
                                 "thumbnail": thumbnail
-                                */
                             },
-                            /*
                             "escrowAgent": {
                                 "name": escrowAgentName,
                                 "address": escrowAgentAddress,
@@ -260,10 +273,8 @@ const CreateCounterToCounterofferDialog = (props) => {
                                 "email": escrowAgentEmail,
                                 "fax": escrowAgentFax
                             },
-                            */
                             "terms": {
                                 "purchasePrice": purchasePrice,
-                            /*
                                 "initialDeposit": initialDeposit,
                                 "initialDepositTime": initialDepositTime,
                                 "balanceToClose": balanceToClose,
@@ -274,7 +285,6 @@ const CreateCounterToCounterofferDialog = (props) => {
                                 "whoDesignatesClosingAgent": whoDesignatesClosingAgent,
                                 "inspectionPeriod": inspectionPeriod,
                                 "additionalTerms": additionalTerms
-                            */
                             },
                             "sellerAgent": sellerAgent,
                             "buyerAgent": buyerAgent,
@@ -300,15 +310,10 @@ const CreateCounterToCounterofferDialog = (props) => {
             <DialogTitle>Create Counter to Counteroffer</DialogTitle>
             <DialogContent>
 
-                {/*}
-                <Button onClick={() => fetchOfferDetails(contractIdProp)}>
-                    Auto-populate
-                </Button>
-                */}
-
-                <Typography>
-                    Party Information
+                <Typography variant="subtitle1" color="primary">
+                    Parties Info
                 </Typography>
+                
                 <TextField
                     autoFocus
                     margin="dense"
@@ -333,6 +338,10 @@ const CreateCounterToCounterofferDialog = (props) => {
                     onChange={handleBuyerChange}
                 />
 
+                <Typography variant="subtitle1" color="primary" sx={{mt: 3}}>
+                    Property Details
+                </Typography>
+                
                 <TextField
                     autoFocus
                     margin="dense"
@@ -453,6 +462,10 @@ const CreateCounterToCounterofferDialog = (props) => {
                     onChange={handleThumbnailChange}
                 />
 
+                <Typography variant="subtitle1" color="primary" sx={{mt: 3}}>
+                    Escrow Agent Details
+                </Typography>
+
                 <TextField
                     autoFocus
                     margin="dense"
@@ -514,6 +527,9 @@ const CreateCounterToCounterofferDialog = (props) => {
                     onChange={handleEscrowAgentFaxChange}
                 />
 
+                <Typography variant="subtitle1" color="primary" sx={{mt: 3}}>
+                    Counter to Counteroffer Terms
+                </Typography>
                 <TextField
                     autoFocus
                     margin="dense"
@@ -645,6 +661,10 @@ const CreateCounterToCounterofferDialog = (props) => {
                     value={additionalTerms}
                     onChange={handleAdditionalTermsChange}
                 />
+
+                <Typography variant="subtitle1" color="primary" sx={{mt: 3}}>
+                    Seller Agent Info
+                </Typography>
 
                 <TextField
                     autoFocus

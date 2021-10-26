@@ -13,7 +13,6 @@ const AddListingDialog = (props) => {
     const user = props.user;
     const { open, setOpen } = props.isOpen;
     const { isListingsUpdated, setIsListingsUpdated } = props.updateListingsComponent;
-    const { isListingApproved, setIsListingApproved } = props.updateApprovedListingsComponent;
     const { isSellersOffersUpdated, setIsSellersOffersUpdated } = props.updateSellersOffersComponent;
     const { isBuyersOffersUpdated, setIsBuyersOffersUpdated } = props.updateBuyersOffersComponent;
    
@@ -30,14 +29,14 @@ const AddListingDialog = (props) => {
     const [county, setCounty] = useState("");
     const [taxId, setTaxId] = useState("");
     const [legalDescr, setLegalDescr] = useState("");
-    const [personalProperty, setPersonalProperty] = useState("");
-    const [excludedItems, setExcludedItems] = useState("");
-    const [thumbnail, setThumbnail] = useState("");
-    const [escrowAgentName, setEscrowAgentName] = useState("");
-    const [escrowAgentAddress, setEscrowAgentAddress] = useState("");
-    const [escrowAgentPhone, setEscrowAgentPhone] = useState("");
-    const [escrowAgentEmail, setEscrowAgentEmail] = useState("");
-    const [escrowAgentFax, setEscrowAgentFax] = useState("");
+    const [personalProperty, setPersonalProperty] = useState("None");
+    const [excludedItems, setExcludedItems] = useState("None");
+    const [thumbnail, setThumbnail] = useState("N/A");
+    const [escrowAgentName, setEscrowAgentName] = useState("Olivia");
+    const [escrowAgentAddress, setEscrowAgentAddress] = useState("55 Title Blvd, Orlando, FL 32830");
+    const [escrowAgentPhone, setEscrowAgentPhone] = useState("(407) 555-1212");
+    const [escrowAgentEmail, setEscrowAgentEmail] = useState("olivia@example.com");
+    const [escrowAgentFax, setEscrowAgentFax] = useState("(407) 555-1213");
     const [listPrice, setListPrice] = useState(0.00);
     
     const handleCancel = () => {
@@ -131,7 +130,6 @@ const AddListingDialog = (props) => {
                             "seller": seller,
                             "property": {
                                 "streetAddress": streetAddress,
-                                /*
                                 "city": city,
                                 "state": state,
                                 "zipCode": zipCode,
@@ -141,9 +139,7 @@ const AddListingDialog = (props) => {
                                 "personalProperty": personalProperty,
                                 "excludedItems": excludedItems,
                                 "thumbnail": thumbnail
-                                */
                             },
-                            /*
                             "escrowAgent": {
                                 "name": escrowAgentName,
                                 "address": escrowAgentAddress,
@@ -151,7 +147,6 @@ const AddListingDialog = (props) => {
                                 "email": escrowAgentEmail,
                                 "fax": escrowAgentFax
                             },
-                            */
                             "listPrice": listPrice,
                             "sellerAgent": username,
                             "templateType": "LISTING",
@@ -159,14 +154,9 @@ const AddListingDialog = (props) => {
                         }
                     }
             });
-            /*
-            setName("");
-            setIsBuyer(true);
-            setPropertyAddress("");
-            */
             setIsListingsUpdated(!isListingsUpdated); // toggle to re-render parent component
-            setIsSellersOffersUpdated(!isSellersOffersUpdated);
-            setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
+            //setIsSellersOffersUpdated(!isSellersOffersUpdated);
+            //setIsBuyersOffersUpdated(!isBuyersOffersUpdated);
         } catch (err) {
             console.log(err);
         }

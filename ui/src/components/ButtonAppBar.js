@@ -46,11 +46,11 @@ const ButtonAppBar = (props) => {
                                     Powered by
                                 </Typography>
                             </Box>
-                            <Box>
+                            <Box sx={{ mr: 5}}>
                                 <img src={daml} height="18" alt="daml logo" />
                             </Box>
                         </Box>
-                        <Button sx={{ml: 5}}
+                        <Button sx={{ml: 4}}
                             color="inherit"
                             disabled={!loggedInUser}
                             onClick={handleLogout}

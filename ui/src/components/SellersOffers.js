@@ -238,6 +238,7 @@ const SellersOffers = (props) => {
                         "contractId": contractId,
                         "choice": "AcceptOffer",
                         "argument": {
+                            "escrowAgentName": "Olivia", //TO-DO: Retrieve from contractId
                             "admin": "Faythe"
                         },
                     }
