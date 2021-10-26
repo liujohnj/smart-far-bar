@@ -7,6 +7,8 @@ Clone GitHub repo.
 
 Follow instructions at Daml.com to set up environment.
 
+Add to the (React) ui folder a .env file containing user token values.
+
 In one terminal window, from the project directory start the Daml ledger:
 - daml start
 
